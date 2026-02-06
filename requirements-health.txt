@@ -1,0 +1,35 @@
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# requirements-health.txt
+#
+# UniFi Timelapse System - Health Monitor Dependencies
+# Lighter dependencies for the health container
+# Version: 1.0.0
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+# Database (async)
+sqlalchemy[asyncio]==2.0.25
+asyncpg==0.29.0
+
+# Redis
+redis>=5.0.0
+
+# HTTP Client (camera checks)
+httpx==0.26.0
+
+# Task Scheduling
+apscheduler==3.10.4
+
+# Data Validation
+pydantic==2.6.1
+pydantic-settings==2.1.0
+
+# Image Analysis (blank/frozen detection)
+pillow==10.2.0
+imagehash==4.3.1
+numpy==1.26.4
+
+# Environment
+python-dotenv==1.0.1
+
+# Notifications
+apprise==1.7.1
