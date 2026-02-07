@@ -153,7 +153,12 @@ const storageStatus = computed(() => {
 })
 
 function formatDate(dateStr) {
-  return format(new Date(dateStr), 'MMM d, yyyy')
+  if (!dateStr) return 'N/A'
+  try {
+    return format(new Date(dateStr), 'MMM d, yyyy')
+  } catch {
+    return 'Invalid date'
+  }
 }
 
 function statusBadgeClass(status) {
@@ -179,8 +184,8 @@ async function fetchStats() {
     stats.value.timelapsesPending = timelapsesResponse.data.pending || 0
 
     // Fetch recent timelapses
-    const recentResponse = await api.get('/timelapses?limit=5')
-    recentTimelapses.value = recentResponse.data
+    const recentResponse = await api.get('/timelapses?per_page=5')
+    recentTimelapses.value = recentResponse.data.timelapses || []
   } catch (error) {
     console.error('Failed to fetch stats:', error)
   }
