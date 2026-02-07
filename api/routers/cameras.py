@@ -5,14 +5,12 @@ Camera CRUD and management endpoints.
 """
 
 import socket
-from typing import Optional
 from uuid import UUID
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from api.auth import get_current_user
 from api.config import get_settings

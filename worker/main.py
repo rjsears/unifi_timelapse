@@ -12,7 +12,6 @@ import asyncio
 import logging
 import signal
 import sys
-from datetime import datetime
 from typing import Optional
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler

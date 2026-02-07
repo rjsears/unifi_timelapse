@@ -4,7 +4,6 @@ Settings Router
 Global settings management.
 """
 
-from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -33,7 +32,7 @@ async def list_settings(
     settings = result.scalars().all()
 
     # Get unique categories
-    categories = list(set(s.category for s in settings))
+    categories = list({s.category for s in settings})
 
     return SettingsListResponse(
         settings=[

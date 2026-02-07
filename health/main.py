@@ -8,8 +8,6 @@ import asyncio
 import logging
 import signal
 import sys
-from datetime import datetime, timezone
-from typing import Optional
 
 from sqlalchemy import select
 
@@ -150,7 +148,7 @@ class HealthMonitor:
                     timeout=self.settings.health_check_interval,
                 )
                 break
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
 
     async def _quality_check_loop(self) -> None:
@@ -167,7 +165,7 @@ class HealthMonitor:
                     timeout=self.settings.blank_check_interval,
                 )
                 break
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
 
     async def shutdown(self) -> None:

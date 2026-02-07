@@ -7,13 +7,12 @@ Video generation using FFMPEG.
 import asyncio
 import logging
 import os
-import subprocess
 import tempfile
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.config import get_settings
@@ -228,7 +227,7 @@ class TimelapseService:
                     process.communicate(),
                     timeout=self.settings.ffmpeg_timeout,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 process.kill()
                 raise TimeoutError("FFMPEG timed out")
 

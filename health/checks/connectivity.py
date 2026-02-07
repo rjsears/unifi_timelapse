@@ -117,7 +117,6 @@ class ConnectivityChecker:
             True if host is reachable
         """
         import asyncio
-        import socket
 
         host = camera.hostname or str(camera.ip_address)
         port = 80  # HTTP port
@@ -132,5 +131,5 @@ class ConnectivityChecker:
             await writer.wait_closed()
             return True
 
-        except (asyncio.TimeoutError, OSError, socket.error):
+        except (TimeoutError, OSError):
             return False

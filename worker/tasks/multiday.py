@@ -8,7 +8,7 @@ import logging
 from datetime import date, datetime, timedelta, timezone
 from typing import List
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from api.config import get_settings
 from api.database import get_db_context
@@ -93,7 +93,7 @@ async def run_multiday_timelapse_generation() -> None:
                 )
 
                 if not selected_images:
-                    logger.warning(f"No images found for multi-day timelapse")
+                    logger.warning("No images found for multi-day timelapse")
                     continue
 
                 logger.info(f"Selected {len(selected_images)} images for timelapse")

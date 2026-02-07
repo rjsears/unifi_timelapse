@@ -6,7 +6,6 @@ Configuration for Apprise notifications.
 
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import Boolean, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID

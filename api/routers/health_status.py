@@ -5,7 +5,7 @@ Camera health monitoring endpoints.
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -167,9 +167,6 @@ async def get_health_summary(
     # Count cameras
     result = await db.execute(select(func.count(Camera.id)))
     total_cameras = result.scalar() or 0
-
-    # Count cameras with recent health checks
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=5)
 
     # Get cameras with issues
     result = await db.execute(

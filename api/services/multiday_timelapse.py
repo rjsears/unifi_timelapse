@@ -5,7 +5,7 @@ API-accessible service for multi-day timelapse operations.
 """
 
 import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import List, Optional
 
 from sqlalchemy import select
@@ -15,7 +15,6 @@ from api.config import get_settings
 from api.models.camera import Camera
 from api.models.image import Image
 from api.models.multiday_config import MultidayConfig
-from api.models.timelapse import Timelapse
 from api.services.storage import StorageService
 
 logger = logging.getLogger(__name__)

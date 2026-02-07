@@ -7,7 +7,6 @@ File storage operations for images and videos.
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from api.config import get_settings
 
