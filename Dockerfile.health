@@ -50,6 +50,7 @@ COPY health/ ./health/
 COPY api/config.py ./api/config.py
 COPY api/database.py ./api/database.py
 COPY api/models/ ./api/models/
+COPY api/services/ ./api/services/
 COPY api/__init__.py ./api/__init__.py
 
 # Create directories
