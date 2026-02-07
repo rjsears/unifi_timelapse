@@ -51,9 +51,8 @@ COPY worker/ ./worker/
 COPY api/config.py ./api/config.py
 COPY api/database.py ./api/database.py
 COPY api/models/ ./api/models/
-COPY api/services/storage.py ./api/services/storage.py
+COPY api/services/ ./api/services/
 COPY api/__init__.py ./api/__init__.py
-COPY api/services/__init__.py ./api/services/__init__.py
 
 # Create directories
 RUN mkdir -p /app/logs /output/images /output/videos && \
