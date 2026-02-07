@@ -69,6 +69,45 @@ async def list_timelapses(
     )
 
 
+@router.get("/stats")
+async def get_timelapse_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Get timelapse statistics.
+    """
+    # Count completed timelapses
+    completed_count = await db.execute(
+        select(func.count()).select_from(Timelapse).where(
+            Timelapse.status == "completed"
+        )
+    )
+    completed = completed_count.scalar() or 0
+
+    # Count pending timelapses
+    pending_count = await db.execute(
+        select(func.count()).select_from(Timelapse).where(
+            Timelapse.status.in_(["pending", "processing"])
+        )
+    )
+    pending = pending_count.scalar() or 0
+
+    # Count failed timelapses
+    failed_count = await db.execute(
+        select(func.count()).select_from(Timelapse).where(
+            Timelapse.status == "failed"
+        )
+    )
+    failed = failed_count.scalar() or 0
+
+    return {
+        "completed": completed,
+        "pending": pending,
+        "failed": failed,
+    }
+
+
 @router.get("/{timelapse_id}", response_model=TimelapseResponse)
 async def get_timelapse(
     timelapse_id: UUID,
