@@ -208,6 +208,8 @@ The system runs as 8 Docker containers:
 | Requirement | Version | Notes |
 |-------------|---------|-------|
 | **Docker** | 20.10+ | With Docker Compose v2 |
+| **Memory** | 16GB+ | 4K timelapse encoding uses ~12GB RAM |
+| **CPU** | 4+ cores | More cores = faster encoding |
 | **Camera Access** | — | HTTP endpoint serving JPEG images |
 | **Storage** | — | ~50MB/camera/day for images at 30s intervals |
 
