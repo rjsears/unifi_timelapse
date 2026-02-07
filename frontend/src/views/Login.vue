@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-dark-900 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
     <div class="max-w-md w-full">
       <!-- Logo/Title -->
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-primary-500">UniFi Timelapse</h1>
-        <p class="mt-2 text-dark-400">Sign in to your account</p>
+        <p class="mt-2 text-gray-500">Sign in to your account</p>
       </div>
 
       <!-- Login form -->
       <div class="card p-8">
         <form @submit.prevent="handleLogin" class="space-y-6">
           <div>
-            <label for="username" class="block text-sm font-medium text-dark-300 mb-2">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
               Username
             </label>
             <input
@@ -26,7 +26,7 @@
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-dark-300 mb-2">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
             <input
@@ -39,7 +39,7 @@
             />
           </div>
 
-          <div v-if="error" class="text-red-400 text-sm text-center">
+          <div v-if="error" class="text-red-500 text-sm text-center">
             {{ error }}
           </div>
 
@@ -61,7 +61,7 @@
       </div>
 
       <!-- Footer -->
-      <p class="mt-4 text-center text-xs text-dark-500">
+      <p class="mt-4 text-center text-xs text-gray-400">
         UniFi Timelapse System v1.0.0
       </p>
     </div>
