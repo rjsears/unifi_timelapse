@@ -826,7 +826,3 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 - **My amazing and loving family!** They put up with all my coding and automation projects and encourage me in everything. Without them, my projects would not be possible.
 - **My brother James**, who is a continual source of inspiration to me and others. Everyone should have a brother as awesome as mine!
-
----
-
-*Built with ❤️ by [Richard J. Sears](https://github.com/rjsears)*
