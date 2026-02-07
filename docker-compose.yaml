@@ -102,7 +102,7 @@ services:
       - APPRISE_ENABLED=${APPRISE_ENABLED:-false}
       - APPRISE_URL=${APPRISE_URL:-http://apprise:8000}
     volumes:
-      - timelapse_output:/output
+      - /root/unifi_timelapse/output:/output
       - timelapse_logs:/app/logs
       - timelapse_config:/app/config
     expose:
@@ -154,11 +154,17 @@ services:
       - DEFAULT_CRF=${DEFAULT_CRF:-20}
       - DEFAULT_PIXEL_FORMAT=${DEFAULT_PIXEL_FORMAT:-yuv444p}
       - FFMPEG_TIMEOUT=${FFMPEG_TIMEOUT:-14400}
+      # Schedule settings
+      - DAILY_TIMELAPSE_TIME=${DAILY_TIMELAPSE_TIME:-01:00}
+      - MULTIDAY_GENERATION_DAY=${MULTIDAY_GENERATION_DAY:-sunday}
+      - MULTIDAY_GENERATION_TIME=${MULTIDAY_GENERATION_TIME:-02:00}
+      - CLEANUP_TIME=${CLEANUP_TIME:-03:00}
       # Notifications
       - APPRISE_ENABLED=${APPRISE_ENABLED:-false}
       - APPRISE_URL=${APPRISE_URL:-http://apprise:8000}
+      - MIN_FAILURES_BEFORE_ALERT=${MIN_FAILURES_BEFORE_ALERT:-3}
     volumes:
-      - timelapse_output:/output
+      - /root/unifi_timelapse/output:/output
       - timelapse_logs:/app/logs
     depends_on:
       postgres:
@@ -252,6 +258,9 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: timelapse_frontend
     restart: unless-stopped
+    depends_on:
+      timelapse_api:
+        condition: service_healthy
     expose:
       - "80"
     healthcheck:
@@ -273,7 +282,7 @@ services:
       - "${HTTP_PORT:-80}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - timelapse_output:/output:ro
+      - /root/unifi_timelapse/output:/output:ro
     depends_on:
       timelapse_api:
         condition: service_healthy
@@ -294,8 +303,6 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
-    driver: local
-  timelapse_output:
     driver: local
   timelapse_logs:
     driver: local
