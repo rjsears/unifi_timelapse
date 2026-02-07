@@ -6,7 +6,7 @@ Service for managing and triggering scheduled tasks via API.
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from api.config import get_settings
 

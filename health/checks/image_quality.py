@@ -4,9 +4,7 @@ Image Quality Checker
 Check for blank and frozen camera images.
 """
 
-import hashlib
 import logging
-from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from typing import Optional
 

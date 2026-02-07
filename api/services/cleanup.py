@@ -8,11 +8,10 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.config import get_settings
-from api.models.camera import Camera
 from api.models.cleanup_log import CleanupLog
 from api.models.image import Image
 from api.models.timelapse import Timelapse
