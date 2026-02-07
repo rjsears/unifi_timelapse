@@ -1,13 +1,15 @@
 # UniFi Timelapse System
 
-[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Python](https://img.shields.io/badge/python-3.11+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Vue.js](https://img.shields.io/badge/Vue.js-3-4FC08D.svg?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg?style=for-the-badge)]()
-[![Release](https://img.shields.io/badge/Release-February%202026-orange.svg?style=for-the-badge)]()
+[![Docker](https://img.shields.io/badge/Docker-Container-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-REST_API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Vue.js](https://img.shields.io/badge/Vue.js-Frontend-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+[![FFMPEG](https://img.shields.io/badge/FFMPEG-Video-007808?logo=ffmpeg&logoColor=white)](https://ffmpeg.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)]()
+[![Release](https://img.shields.io/badge/Release-February%202026-orange.svg)]()
 
 > ### *"The best time to plant a tree was 20 years ago. The second best time is now."* — Chinese Proverb
 
