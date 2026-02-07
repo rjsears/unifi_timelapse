@@ -4,7 +4,7 @@ Images Router
 Image management endpoints.
 """
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
@@ -77,8 +77,8 @@ async def get_image_stats(
     """
     Get image statistics.
     """
-    # Get today's date range in UTC
-    now = datetime.now(timezone.utc)
+    # Get today's date range (naive datetime to match DB)
+    now = datetime.utcnow()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Count images captured today
