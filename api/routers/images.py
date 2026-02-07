@@ -4,7 +4,7 @@ Images Router
 Image management endpoints.
 """
 
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -67,6 +67,38 @@ async def list_images(
         page=page,
         per_page=per_page,
     )
+
+
+@router.get("/stats")
+async def get_image_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Get image statistics.
+    """
+    # Get today's date range in UTC
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Count images captured today
+    today_count = await db.execute(
+        select(func.count()).select_from(Image).where(
+            Image.captured_at >= today_start
+        )
+    )
+    today = today_count.scalar() or 0
+
+    # Count total images
+    total_count = await db.execute(
+        select(func.count()).select_from(Image)
+    )
+    total = total_count.scalar() or 0
+
+    return {
+        "today": today,
+        "total": total,
+    }
 
 
 @router.get("/{image_id}", response_model=ImageResponse)
