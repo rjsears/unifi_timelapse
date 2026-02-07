@@ -19,7 +19,7 @@ export const useCamerasStore = defineStore('cameras', () => {
     error.value = null
     try {
       const response = await api.get('/cameras')
-      cameras.value = response.data
+      cameras.value = response.data.cameras || []
     } catch (err) {
       error.value = err.response?.data?.detail || 'Failed to fetch cameras'
     } finally {
