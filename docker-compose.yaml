@@ -252,6 +252,9 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: timelapse_frontend
     restart: unless-stopped
+    depends_on:
+      timelapse_api:
+        condition: service_healthy
     expose:
       - "80"
     healthcheck:
