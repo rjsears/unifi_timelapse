@@ -15,7 +15,7 @@
       >
         <div class="min-h-screen px-4 text-center">
           <!-- Background overlay -->
-          <div class="fixed inset-0 bg-dark-900/75" @click="close"></div>
+          <div class="fixed inset-0 bg-gray-900/75" @click="close"></div>
 
           <!-- Centering element -->
           <span class="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
@@ -32,21 +32,21 @@
             <div
               v-if="modelValue"
               :class="[
-                'inline-block w-full text-left align-middle transition-all transform bg-dark-800 rounded-lg shadow-xl border border-dark-700',
+                'inline-block w-full text-left align-middle transition-all transform bg-white rounded-lg shadow-xl border border-gray-200',
                 sizeClasses,
               ]"
             >
               <!-- Header -->
               <div
                 v-if="title || $slots.header"
-                class="flex items-center justify-between px-6 py-4 border-b border-dark-700"
+                class="flex items-center justify-between px-6 py-4 border-b border-gray-200"
               >
                 <slot name="header">
-                  <h3 class="text-lg font-semibold text-white">{{ title }}</h3>
+                  <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
                 </slot>
                 <button
                   v-if="closable"
-                  class="p-1 text-dark-400 hover:text-white rounded-lg"
+                  class="p-1 text-gray-500 hover:text-gray-900 rounded-lg"
                   @click="close"
                 >
                   <XMarkIcon class="w-5 h-5" />
@@ -61,7 +61,7 @@
               <!-- Footer -->
               <div
                 v-if="$slots.footer"
-                class="px-6 py-4 border-t border-dark-700 bg-dark-800/50 rounded-b-lg"
+                class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg"
               >
                 <slot name="footer"></slot>
               </div>

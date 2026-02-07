@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Timelapses</h1>
-        <p class="text-dark-400">View and manage timelapse videos</p>
+        <h1 class="text-2xl font-bold text-gray-900">Timelapses</h1>
+        <p class="text-gray-500">View and manage timelapse videos</p>
       </div>
       <button class="btn-primary" @click="showGenerateModal = true">
         <PlayIcon class="w-5 h-5 mr-2" />
@@ -42,18 +42,18 @@
         <div class="spinner w-8 h-8"></div>
       </div>
       <div v-else-if="timelapses.length === 0" class="text-center py-12">
-        <FilmIcon class="w-12 h-12 mx-auto text-dark-500" />
-        <h3 class="mt-4 text-lg font-medium text-white">No timelapses found</h3>
-        <p class="mt-2 text-dark-400">Timelapses will appear here once generated.</p>
+        <FilmIcon class="w-12 h-12 mx-auto text-gray-400" />
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No timelapses found</h3>
+        <p class="mt-2 text-gray-500">Timelapses will appear here once generated.</p>
       </div>
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         <div
           v-for="timelapse in timelapses"
           :key="timelapse.id"
-          class="bg-dark-700/50 rounded-lg border border-dark-600 overflow-hidden"
+          class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
         >
           <!-- Thumbnail -->
-          <div class="aspect-video bg-dark-800 relative">
+          <div class="aspect-video bg-gray-100 relative">
             <img
               v-if="timelapse.status === 'completed'"
               :src="`/api/timelapses/${timelapse.id}/thumbnail`"
@@ -63,7 +63,7 @@
             <div class="absolute inset-0 flex items-center justify-center">
               <div
                 v-if="timelapse.status === 'processing'"
-                class="bg-dark-900/80 px-3 py-2 rounded-lg flex items-center"
+                class="bg-gray-900/80 px-3 py-2 rounded-lg flex items-center text-white"
               >
                 <div class="spinner w-4 h-4 mr-2"></div>
                 Processing...
@@ -78,16 +78,16 @@
           <!-- Info -->
           <div class="p-4">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="font-medium text-white">{{ timelapse.camera_name }}</h3>
+              <h3 class="font-medium text-gray-900">{{ timelapse.camera_name }}</h3>
               <span :class="statusClass(timelapse.status)">{{ timelapse.status }}</span>
             </div>
-            <p class="text-sm text-dark-400">
+            <p class="text-sm text-gray-500">
               {{ formatDateRange(timelapse) }}
             </p>
-            <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs text-dark-500">
+            <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs text-gray-400">
               {{ timelapse.frame_count }} frames • {{ formatDuration(timelapse.duration_seconds) }}
             </div>
-            <div v-if="timelapse.status === 'failed'" class="mt-2 text-xs text-red-400">
+            <div v-if="timelapse.status === 'failed'" class="mt-2 text-xs text-red-500">
               {{ timelapse.error_message }}
             </div>
             <!-- Actions -->
@@ -101,7 +101,7 @@
                 Download
               </button>
               <button
-                class="btn-secondary text-xs px-3 py-1 text-red-400 hover:text-red-300"
+                class="btn-secondary text-xs px-3 py-1 text-red-500 hover:text-red-600"
                 @click="confirmDelete(timelapse)"
               >
                 <TrashIcon class="w-4 h-4" />
@@ -116,7 +116,7 @@
     <Modal v-model="showGenerateModal" title="Generate Timelapse" size="md">
       <form @submit.prevent="generateTimelapse" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-dark-300 mb-1">Camera</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
           <select v-model="generateForm.camera_id" class="input" required>
             <option value="">Select a camera</option>
             <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
@@ -125,7 +125,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-dark-300 mb-1">Date</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
           <input v-model="generateForm.date" type="date" class="input" required />
         </div>
         <div class="flex justify-end space-x-3 pt-4">
@@ -152,7 +152,7 @@
 
     <!-- Delete confirmation -->
     <Modal v-model="showDeleteModal" title="Delete Timelapse" size="sm">
-      <p class="text-dark-300">
+      <p class="text-gray-700">
         Are you sure you want to delete this timelapse?
       </p>
       <div class="flex justify-end space-x-3 pt-6">

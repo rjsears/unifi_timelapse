@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Cameras</h1>
-        <p class="text-dark-400">Manage your camera configurations</p>
+        <h1 class="text-2xl font-bold text-gray-900">Cameras</h1>
+        <p class="text-gray-500">Manage your camera configurations</p>
       </div>
       <button class="btn-primary" @click="showAddModal = true">
         <PlusIcon class="w-5 h-5 mr-2" />
@@ -18,9 +18,9 @@
         <div class="spinner w-8 h-8"></div>
       </div>
       <div v-else-if="camerasStore.cameras.length === 0" class="text-center py-12">
-        <VideoCameraIcon class="w-12 h-12 mx-auto text-dark-500" />
-        <h3 class="mt-4 text-lg font-medium text-white">No cameras configured</h3>
-        <p class="mt-2 text-dark-400">Get started by adding your first camera.</p>
+        <VideoCameraIcon class="w-12 h-12 mx-auto text-gray-400" />
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No cameras configured</h3>
+        <p class="mt-2 text-gray-500">Get started by adding your first camera.</p>
         <button class="btn-primary mt-4" @click="showAddModal = true">
           Add Camera
         </button>
@@ -41,22 +41,22 @@
             <td>
               <router-link
                 :to="`/cameras/${camera.id}`"
-                class="font-medium text-primary-400 hover:text-primary-300"
+                class="font-medium text-primary-600 hover:text-primary-500"
               >
                 {{ camera.name }}
               </router-link>
             </td>
-            <td class="text-dark-300">
+            <td class="text-gray-700">
               {{ camera.hostname || camera.ip_address }}
             </td>
-            <td class="text-dark-300">
+            <td class="text-gray-700">
               {{ camera.capture_interval }}s
             </td>
-            <td class="text-dark-300">
+            <td class="text-gray-700">
               <span v-if="camera.last_capture_at">
                 {{ formatTime(camera.last_capture_at) }}
               </span>
-              <span v-else class="text-dark-500">Never</span>
+              <span v-else class="text-gray-400">Never</span>
             </td>
             <td>
               <span :class="getStatusClass(camera)">
@@ -66,28 +66,28 @@
             <td class="text-right">
               <div class="flex items-center justify-end space-x-2">
                 <button
-                  class="p-2 text-dark-400 hover:text-white rounded"
+                  class="p-2 text-gray-500 hover:text-gray-900 rounded"
                   title="Test connection"
                   @click="testCamera(camera)"
                 >
                   <SignalIcon class="w-4 h-4" />
                 </button>
                 <button
-                  class="p-2 text-dark-400 hover:text-white rounded"
+                  class="p-2 text-gray-500 hover:text-gray-900 rounded"
                   title="Capture now"
                   @click="captureNow(camera)"
                 >
                   <CameraIcon class="w-4 h-4" />
                 </button>
                 <button
-                  class="p-2 text-dark-400 hover:text-white rounded"
+                  class="p-2 text-gray-500 hover:text-gray-900 rounded"
                   title="Edit"
                   @click="editCamera(camera)"
                 >
                   <PencilIcon class="w-4 h-4" />
                 </button>
                 <button
-                  class="p-2 text-dark-400 hover:text-red-400 rounded"
+                  class="p-2 text-gray-500 hover:text-red-500 rounded"
                   title="Delete"
                   @click="confirmDelete(camera)"
                 >
@@ -105,29 +105,29 @@
       <form @submit.prevent="saveCamera" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-dark-300 mb-1">Name</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <input v-model="cameraForm.name" type="text" class="input" required />
           </div>
           <div>
-            <label class="block text-sm font-medium text-dark-300 mb-1">Hostname</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Hostname</label>
             <input v-model="cameraForm.hostname" type="text" class="input" placeholder="camera.local" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-dark-300 mb-1">IP Address</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">IP Address</label>
             <input v-model="cameraForm.ip_address" type="text" class="input" placeholder="192.168.1.100" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-dark-300 mb-1">Capture Interval (seconds)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Capture Interval (seconds)</label>
             <input v-model.number="cameraForm.capture_interval" type="number" min="10" max="3600" class="input" />
           </div>
           <div class="flex items-center space-x-4">
             <label class="flex items-center">
               <input v-model="cameraForm.is_active" type="checkbox" class="mr-2" />
-              <span class="text-sm text-dark-300">Active</span>
+              <span class="text-sm text-gray-700">Active</span>
             </label>
             <label class="flex items-center">
               <input v-model="cameraForm.timelapse_enabled" type="checkbox" class="mr-2" />
-              <span class="text-sm text-dark-300">Timelapse Enabled</span>
+              <span class="text-sm text-gray-700">Timelapse Enabled</span>
             </label>
           </div>
         </div>
@@ -144,8 +144,8 @@
 
     <!-- Delete confirmation -->
     <Modal v-model="showDeleteModal" title="Delete Camera" size="sm">
-      <p class="text-dark-300">
-        Are you sure you want to delete <strong class="text-white">{{ cameraToDelete?.name }}</strong>?
+      <p class="text-gray-700">
+        Are you sure you want to delete <strong class="text-gray-900">{{ cameraToDelete?.name }}</strong>?
         This will also delete all associated images and timelapses.
       </p>
       <div class="flex justify-end space-x-3 pt-6">
@@ -272,7 +272,7 @@ function formatTime(dateStr) {
 }
 
 function getStatusClass(camera) {
-  if (!camera.is_active) return 'badge bg-dark-600 text-dark-400'
+  if (!camera.is_active) return 'badge bg-gray-200 text-gray-500'
   if (camera.consecutive_errors >= 3) return 'badge-danger'
   if (camera.consecutive_errors > 0) return 'badge-warning'
   return 'badge-success'

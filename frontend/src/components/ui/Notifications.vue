@@ -12,7 +12,7 @@
         v-for="notification in notifications"
         :key="notification.id"
         :class="[
-          'max-w-sm w-full bg-dark-800 shadow-lg rounded-lg pointer-events-auto border overflow-hidden',
+          'max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto border overflow-hidden',
           borderClass(notification.type),
         ]"
       >
@@ -25,16 +25,16 @@
               />
             </div>
             <div class="ml-3 w-0 flex-1">
-              <p class="text-sm font-medium text-white">
+              <p class="text-sm font-medium text-gray-900">
                 {{ notification.title }}
               </p>
-              <p v-if="notification.message" class="mt-1 text-sm text-dark-400">
+              <p v-if="notification.message" class="mt-1 text-sm text-gray-500">
                 {{ notification.message }}
               </p>
             </div>
             <div class="ml-4 flex-shrink-0 flex">
               <button
-                class="inline-flex text-dark-400 hover:text-dark-200 focus:outline-none"
+                class="inline-flex text-gray-500 hover:text-gray-700 focus:outline-none"
                 @click="remove(notification.id)"
               >
                 <XMarkIcon class="h-5 w-5" />
@@ -77,12 +77,12 @@ function iconComponent(type) {
 
 function iconClass(type) {
   const classes = {
-    success: 'text-green-400',
-    warning: 'text-yellow-400',
-    error: 'text-red-400',
-    info: 'text-blue-400',
+    success: 'text-green-500',
+    warning: 'text-yellow-500',
+    error: 'text-red-500',
+    info: 'text-blue-500',
   }
-  return classes[type] || 'text-blue-400'
+  return classes[type] || 'text-blue-500'
 }
 
 function borderClass(type) {
@@ -92,6 +92,6 @@ function borderClass(type) {
     error: 'border-red-500/20',
     info: 'border-blue-500/20',
   }
-  return classes[type] || 'border-dark-700'
+  return classes[type] || 'border-gray-200'
 }
 </script>

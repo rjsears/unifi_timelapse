@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-dark-900">
+  <div class="min-h-screen bg-gray-50">
     <template v-if="authStore.isAuthenticated">
       <Sidebar />
       <div class="lg:pl-64">

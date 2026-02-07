@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Images</h1>
-        <p class="text-dark-400">Browse captured images</p>
+        <h1 class="text-2xl font-bold text-gray-900">Images</h1>
+        <p class="text-gray-500">Browse captured images</p>
       </div>
     </div>
 
@@ -18,7 +18,7 @@
           </option>
         </select>
         <input v-model="filters.date" type="date" class="input w-auto" />
-        <label class="flex items-center text-dark-300">
+        <label class="flex items-center text-gray-700">
           <input v-model="filters.protected" type="checkbox" class="mr-2" />
           Protected only
         </label>
@@ -31,9 +31,9 @@
         <div class="spinner w-8 h-8"></div>
       </div>
       <div v-else-if="images.length === 0" class="text-center py-12">
-        <PhotoIcon class="w-12 h-12 mx-auto text-dark-500" />
-        <h3 class="mt-4 text-lg font-medium text-white">No images found</h3>
-        <p class="mt-2 text-dark-400">Adjust your filters or wait for new captures.</p>
+        <PhotoIcon class="w-12 h-12 mx-auto text-gray-400" />
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No images found</h3>
+        <p class="mt-2 text-gray-500">Adjust your filters or wait for new captures.</p>
       </div>
       <div v-else class="p-4">
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -43,7 +43,7 @@
             class="relative group cursor-pointer"
             @click="openImage(image)"
           >
-            <div class="aspect-video bg-dark-700 rounded-lg overflow-hidden">
+            <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               <img
                 :src="`/api/images/${image.id}/thumbnail`"
                 class="w-full h-full object-cover transition-transform group-hover:scale-105"
@@ -58,11 +58,11 @@
               <ShieldCheckIcon class="w-4 h-4 text-white" />
             </div>
             <!-- Hover overlay -->
-            <div class="absolute inset-0 bg-dark-900/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+            <div class="absolute inset-0 bg-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <MagnifyingGlassPlusIcon class="w-8 h-8 text-white" />
             </div>
             <!-- Time -->
-            <div class="mt-1 text-xs text-dark-400 truncate">
+            <div class="mt-1 text-xs text-gray-500 truncate">
               {{ formatTime(image.captured_at) }}
             </div>
           </div>
@@ -70,7 +70,7 @@
 
         <!-- Pagination -->
         <div class="mt-6 flex items-center justify-between">
-          <p class="text-sm text-dark-400">
+          <p class="text-sm text-gray-500">
             Showing {{ images.length }} of {{ total }} images
           </p>
           <div class="flex space-x-2">
@@ -98,8 +98,8 @@
       <template #header>
         <div class="flex items-center justify-between w-full">
           <div>
-            <h3 class="text-lg font-semibold text-white">{{ selectedImage?.camera_name }}</h3>
-            <p class="text-sm text-dark-400">{{ formatDateTime(selectedImage?.captured_at) }}</p>
+            <h3 class="text-lg font-semibold text-gray-900">{{ selectedImage?.camera_name }}</h3>
+            <p class="text-sm text-gray-500">{{ formatDateTime(selectedImage?.captured_at) }}</p>
           </div>
           <div class="flex items-center space-x-2">
             <button
@@ -114,13 +114,13 @@
               <ArrowDownTrayIcon class="w-4 h-4 mr-1" />
               Download
             </button>
-            <button class="btn-secondary text-xs text-red-400" @click="confirmDeleteImage">
+            <button class="btn-secondary text-xs text-red-500" @click="confirmDeleteImage">
               <TrashIcon class="w-4 h-4" />
             </button>
           </div>
         </div>
       </template>
-      <div class="flex items-center justify-center bg-dark-900 rounded-lg" style="height: 70vh">
+      <div class="flex items-center justify-center bg-gray-100 rounded-lg" style="height: 70vh">
         <img
           v-if="selectedImage"
           :src="`/api/images/${selectedImage.id}/full`"
@@ -135,7 +135,7 @@
         >
           Previous
         </button>
-        <span class="text-dark-400">{{ currentIndex + 1 }} of {{ images.length }}</span>
+        <span class="text-gray-500">{{ currentIndex + 1 }} of {{ images.length }}</span>
         <button
           class="btn-secondary"
           :disabled="currentIndex >= images.length - 1"
@@ -148,7 +148,7 @@
 
     <!-- Delete confirmation -->
     <Modal v-model="showDeleteModal" title="Delete Image" size="sm">
-      <p class="text-dark-300">Are you sure you want to delete this image?</p>
+      <p class="text-gray-700">Are you sure you want to delete this image?</p>
       <div class="flex justify-end space-x-3 pt-6">
         <button class="btn-secondary" @click="showDeleteModal = false">Cancel</button>
         <button class="btn-danger" @click="deleteImage">Delete</button>

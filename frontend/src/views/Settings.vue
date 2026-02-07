@@ -2,12 +2,12 @@
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <h1 class="text-2xl font-bold text-white">Settings</h1>
-      <p class="text-dark-400">System configuration and administration</p>
+      <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+      <p class="text-gray-500">System configuration and administration</p>
     </div>
 
     <!-- Tabs -->
-    <div class="border-b border-dark-700">
+    <div class="border-b border-gray-200">
       <nav class="flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -15,8 +15,8 @@
           :class="[
             'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
             activeTab === tab.id
-              ? 'border-primary-500 text-primary-400'
-              : 'border-transparent text-dark-400 hover:text-white hover:border-dark-500',
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300',
           ]"
           @click="activeTab = tab.id"
         >
@@ -28,13 +28,13 @@
     <!-- General Settings -->
     <div v-if="activeTab === 'general'" class="space-y-6">
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Capture Settings</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Capture Settings</h2>
         </div>
         <div class="p-6 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Default Capture Interval (seconds)
               </label>
               <input
@@ -46,7 +46,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Max Concurrent Captures
               </label>
               <input
@@ -58,7 +58,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Capture Timeout (seconds)
               </label>
               <input
@@ -74,13 +74,13 @@
       </div>
 
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Timelapse Settings</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Timelapse Settings</h2>
         </div>
         <div class="p-6 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Default Frame Rate
               </label>
               <input
@@ -92,7 +92,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Default CRF (Quality)
               </label>
               <input
@@ -104,7 +104,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Daily Generation Time
               </label>
               <input
@@ -114,7 +114,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Pixel Format
               </label>
               <select v-model="settings.default_pixel_format" class="input">
@@ -128,13 +128,13 @@
       </div>
 
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Retention Settings</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Retention Settings</h2>
         </div>
         <div class="p-6 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Image Retention (days)
               </label>
               <input
@@ -145,7 +145,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Video Retention (days)
               </label>
               <input
@@ -156,7 +156,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-dark-300 mb-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Cleanup Time
               </label>
               <input
@@ -172,7 +172,7 @@
                   type="checkbox"
                   class="mr-2"
                 />
-                <span class="text-dark-300">Delete images after timelapse</span>
+                <span class="text-gray-700">Delete images after timelapse</span>
               </label>
             </div>
           </div>
@@ -187,33 +187,33 @@
     <!-- Notifications -->
     <div v-if="activeTab === 'notifications'" class="space-y-6">
       <div class="card">
-        <div class="p-4 border-b border-dark-700 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-white">Notification Channels</h2>
+        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">Notification Channels</h2>
           <button class="btn-primary text-sm" @click="showAddNotification = true">
             Add Channel
           </button>
         </div>
-        <div v-if="notificationConfigs.length === 0" class="p-6 text-center text-dark-400">
+        <div v-if="notificationConfigs.length === 0" class="p-6 text-center text-gray-500">
           No notification channels configured
         </div>
-        <ul v-else class="divide-y divide-dark-700">
+        <ul v-else class="divide-y divide-gray-200">
           <li
             v-for="config in notificationConfigs"
             :key="config.id"
             class="p-4 flex items-center justify-between"
           >
             <div>
-              <p class="font-medium text-white">{{ config.name }}</p>
-              <p class="text-sm text-dark-400 truncate max-w-md">{{ config.apprise_url }}</p>
+              <p class="font-medium text-gray-900">{{ config.name }}</p>
+              <p class="text-sm text-gray-500 truncate max-w-md">{{ config.apprise_url }}</p>
             </div>
             <div class="flex items-center space-x-4">
               <span :class="config.is_enabled ? 'badge-success' : 'badge'">
                 {{ config.is_enabled ? 'Enabled' : 'Disabled' }}
               </span>
-              <button class="text-dark-400 hover:text-white" @click="testNotification(config)">
+              <button class="text-gray-500 hover:text-gray-900" @click="testNotification(config)">
                 Test
               </button>
-              <button class="text-dark-400 hover:text-red-400" @click="deleteNotification(config)">
+              <button class="text-gray-500 hover:text-red-500" @click="deleteNotification(config)">
                 Delete
               </button>
             </div>
@@ -225,42 +225,42 @@
     <!-- System Info -->
     <div v-if="activeTab === 'system'" class="space-y-6">
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">System Information</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">System Information</h2>
         </div>
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p class="text-sm text-dark-400">Version</p>
-            <p class="text-white">{{ systemInfo?.version || '-' }}</p>
+            <p class="text-sm text-gray-500">Version</p>
+            <p class="text-gray-900">{{ systemInfo?.version || '-' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Status</p>
-            <p :class="systemInfo?.status === 'healthy' ? 'text-green-400' : 'text-yellow-400'">
+            <p class="text-sm text-gray-500">Status</p>
+            <p :class="systemInfo?.status === 'healthy' ? 'text-green-500' : 'text-yellow-500'">
               {{ systemInfo?.status || '-' }}
             </p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Database</p>
-            <p class="text-white">PostgreSQL</p>
+            <p class="text-sm text-gray-500">Database</p>
+            <p class="text-gray-900">PostgreSQL</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Uptime</p>
-            <p class="text-white">{{ systemInfo?.uptime || '-' }}</p>
+            <p class="text-sm text-gray-500">Uptime</p>
+            <p class="text-gray-900">{{ systemInfo?.uptime || '-' }}</p>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Storage</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Storage</h2>
         </div>
         <div class="p-6">
           <div class="mb-4">
             <div class="flex justify-between text-sm mb-1">
-              <span class="text-dark-400">Used</span>
-              <span class="text-white">{{ formatBytes(storageInfo?.used_bytes) }}</span>
+              <span class="text-gray-500">Used</span>
+              <span class="text-gray-900">{{ formatBytes(storageInfo?.used_bytes) }}</span>
             </div>
-            <div class="w-full bg-dark-700 rounded-full h-3">
+            <div class="w-full bg-gray-200 rounded-full h-3">
               <div
                 class="h-3 rounded-full transition-all"
                 :class="storageClass"
@@ -268,16 +268,16 @@
               ></div>
             </div>
             <div class="flex justify-between text-sm mt-1">
-              <span class="text-dark-400">{{ (storageInfo?.percent_used || 0).toFixed(1) }}% used</span>
-              <span class="text-dark-400">{{ formatBytes(storageInfo?.total_bytes) }} total</span>
+              <span class="text-gray-500">{{ (storageInfo?.percent_used || 0).toFixed(1) }}% used</span>
+              <span class="text-gray-500">{{ formatBytes(storageInfo?.total_bytes) }} total</span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Scheduled Tasks</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Scheduled Tasks</h2>
         </div>
         <table class="table">
           <thead>
@@ -289,8 +289,8 @@
           </thead>
           <tbody>
             <tr v-for="task in scheduledTasks" :key="task.id">
-              <td class="text-white">{{ task.name }}</td>
-              <td class="text-dark-300">{{ task.schedule }}</td>
+              <td class="text-gray-900">{{ task.name }}</td>
+              <td class="text-gray-700">{{ task.schedule }}</td>
               <td>
                 <span class="badge-success">Active</span>
               </td>
@@ -304,11 +304,11 @@
     <Modal v-model="showAddNotification" title="Add Notification Channel" size="md">
       <form @submit.prevent="addNotification" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-dark-300 mb-1">Name</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
           <input v-model="notificationForm.name" type="text" class="input" required />
         </div>
         <div>
-          <label class="block text-sm font-medium text-dark-300 mb-1">Apprise URL</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Apprise URL</label>
           <input
             v-model="notificationForm.apprise_url"
             type="text"
@@ -316,8 +316,8 @@
             placeholder="slack://token_a/token_b/token_c"
             required
           />
-          <p class="mt-1 text-xs text-dark-400">
-            <a href="https://github.com/caronc/apprise" target="_blank" class="text-primary-400">
+          <p class="mt-1 text-xs text-gray-500">
+            <a href="https://github.com/caronc/apprise" target="_blank" class="text-primary-600">
               Apprise documentation
             </a>
           </p>
@@ -325,19 +325,19 @@
         <div class="space-y-2">
           <label class="flex items-center">
             <input v-model="notificationForm.notify_on_capture_fail" type="checkbox" class="mr-2" />
-            <span class="text-sm text-dark-300">Capture failures</span>
+            <span class="text-sm text-gray-700">Capture failures</span>
           </label>
           <label class="flex items-center">
             <input v-model="notificationForm.notify_on_timelapse_done" type="checkbox" class="mr-2" />
-            <span class="text-sm text-dark-300">Timelapse completion</span>
+            <span class="text-sm text-gray-700">Timelapse completion</span>
           </label>
           <label class="flex items-center">
             <input v-model="notificationForm.notify_on_camera_down" type="checkbox" class="mr-2" />
-            <span class="text-sm text-dark-300">Camera offline</span>
+            <span class="text-sm text-gray-700">Camera offline</span>
           </label>
           <label class="flex items-center">
             <input v-model="notificationForm.notify_on_storage_warn" type="checkbox" class="mr-2" />
-            <span class="text-sm text-dark-300">Storage warnings</span>
+            <span class="text-sm text-gray-700">Storage warnings</span>
           </label>
         </div>
         <div class="flex justify-end space-x-3 pt-4">

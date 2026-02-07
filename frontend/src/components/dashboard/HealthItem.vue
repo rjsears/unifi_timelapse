@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between">
-    <span class="text-sm text-dark-300">{{ label }}</span>
+    <span class="text-sm text-gray-700">{{ label }}</span>
     <span :class="badgeClass">
       {{ displayStatus }}
     </span>
@@ -34,9 +34,9 @@ const badgeClass = computed(() => {
     healthy: 'badge-success',
     warning: 'badge-warning',
     critical: 'badge-danger',
-    unknown: 'badge bg-dark-600 text-dark-400',
+    unknown: 'badge bg-gray-200 text-gray-500',
     degraded: 'badge-warning',
   }
-  return classes[props.status] || 'badge bg-dark-600 text-dark-400'
+  return classes[props.status] || 'badge bg-gray-200 text-gray-500'
 })
 </script>

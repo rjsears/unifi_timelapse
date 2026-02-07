@@ -5,9 +5,9 @@
         <component :is="iconComponent" :class="['w-6 h-6', iconColorClass]" />
       </div>
       <div class="ml-4">
-        <p class="text-sm font-medium text-dark-400">{{ title }}</p>
-        <p class="text-2xl font-bold text-white">{{ value }}</p>
-        <p v-if="subtitle" class="text-xs text-dark-500">{{ subtitle }}</p>
+        <p class="text-sm font-medium text-gray-500">{{ title }}</p>
+        <p class="text-2xl font-bold text-gray-900">{{ value }}</p>
+        <p v-if="subtitle" class="text-xs text-gray-400">{{ subtitle }}</p>
       </div>
     </div>
   </div>
@@ -59,12 +59,12 @@ const bgClass = computed(() => {
 
 const iconColorClass = computed(() => {
   const colors = {
-    primary: 'text-primary-400',
-    green: 'text-green-400',
-    purple: 'text-purple-400',
-    yellow: 'text-yellow-400',
-    red: 'text-red-400',
+    primary: 'text-primary-600',
+    green: 'text-green-600',
+    purple: 'text-purple-600',
+    yellow: 'text-yellow-600',
+    red: 'text-red-600',
   }
-  return colors[props.color] || 'text-primary-400'
+  return colors[props.color] || 'text-primary-600'
 })
 </script>

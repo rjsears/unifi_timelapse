@@ -8,12 +8,12 @@
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div>
-          <router-link to="/cameras" class="text-sm text-dark-400 hover:text-white flex items-center mb-2">
+          <router-link to="/cameras" class="text-sm text-gray-500 hover:text-gray-900 flex items-center mb-2">
             <ArrowLeftIcon class="w-4 h-4 mr-1" />
             Back to Cameras
           </router-link>
-          <h1 class="text-2xl font-bold text-white">{{ camera.name }}</h1>
-          <p class="text-dark-400">{{ camera.hostname || camera.ip_address }}</p>
+          <h1 class="text-2xl font-bold text-gray-900">{{ camera.name }}</h1>
+          <p class="text-gray-500">{{ camera.hostname || camera.ip_address }}</p>
         </div>
         <div class="flex items-center space-x-3">
           <button class="btn-secondary" @click="testConnection">
@@ -30,22 +30,22 @@
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="card p-4">
-          <p class="text-sm text-dark-400">Status</p>
+          <p class="text-sm text-gray-500">Status</p>
           <p class="text-lg font-semibold" :class="statusColor">{{ statusText }}</p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-dark-400">Capture Interval</p>
-          <p class="text-lg font-semibold text-white">{{ camera.capture_interval }}s</p>
+          <p class="text-sm text-gray-500">Capture Interval</p>
+          <p class="text-lg font-semibold text-gray-900">{{ camera.capture_interval }}s</p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-dark-400">Last Capture</p>
-          <p class="text-lg font-semibold text-white">
+          <p class="text-sm text-gray-500">Last Capture</p>
+          <p class="text-lg font-semibold text-gray-900">
             {{ camera.last_capture_at ? formatTime(camera.last_capture_at) : 'Never' }}
           </p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-dark-400">Images Today</p>
-          <p class="text-lg font-semibold text-white">{{ imagesCount }}</p>
+          <p class="text-sm text-gray-500">Images Today</p>
+          <p class="text-lg font-semibold text-gray-900">{{ imagesCount }}</p>
         </div>
       </div>
 
@@ -53,11 +53,11 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Live preview -->
         <div class="card">
-          <div class="p-4 border-b border-dark-700">
-            <h2 class="text-lg font-semibold text-white">Live Preview</h2>
+          <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Live Preview</h2>
           </div>
           <div class="p-4">
-            <div class="aspect-video bg-dark-700 rounded-lg overflow-hidden">
+            <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               <img
                 v-if="previewUrl"
                 :src="previewUrl"
@@ -65,7 +65,7 @@
                 class="w-full h-full object-contain"
                 @error="previewError = true"
               />
-              <div v-else class="flex items-center justify-center h-full text-dark-400">
+              <div v-else class="flex items-center justify-center h-full text-gray-500">
                 <span v-if="previewError">Failed to load preview</span>
                 <span v-else>Loading...</span>
               </div>
@@ -81,21 +81,21 @@
 
         <!-- Recent images -->
         <div class="card">
-          <div class="p-4 border-b border-dark-700 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-white">Recent Images</h2>
-            <router-link :to="`/images?camera=${camera.id}`" class="text-sm text-primary-400">
+          <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Images</h2>
+            <router-link :to="`/images?camera=${camera.id}`" class="text-sm text-primary-600">
               View All
             </router-link>
           </div>
           <div class="p-4">
-            <div v-if="recentImages.length === 0" class="text-center py-8 text-dark-400">
+            <div v-if="recentImages.length === 0" class="text-center py-8 text-gray-500">
               No images captured yet
             </div>
             <div v-else class="grid grid-cols-3 gap-2">
               <div
                 v-for="image in recentImages"
                 :key="image.id"
-                class="aspect-video bg-dark-700 rounded overflow-hidden"
+                class="aspect-video bg-gray-100 rounded overflow-hidden"
               >
                 <img
                   :src="`/api/images/${image.id}/thumbnail`"
@@ -109,41 +109,41 @@
 
       <!-- Configuration -->
       <div class="card">
-        <div class="p-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Configuration</h2>
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Configuration</h2>
         </div>
         <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <p class="text-sm text-dark-400">Active</p>
-            <p class="text-white">{{ camera.is_active ? 'Yes' : 'No' }}</p>
+            <p class="text-sm text-gray-500">Active</p>
+            <p class="text-gray-900">{{ camera.is_active ? 'Yes' : 'No' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Timelapse Enabled</p>
-            <p class="text-white">{{ camera.timelapse_enabled ? 'Yes' : 'No' }}</p>
+            <p class="text-sm text-gray-500">Timelapse Enabled</p>
+            <p class="text-gray-900">{{ camera.timelapse_enabled ? 'Yes' : 'No' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Timelapse Time</p>
-            <p class="text-white">{{ camera.timelapse_time || 'Default' }}</p>
+            <p class="text-sm text-gray-500">Timelapse Time</p>
+            <p class="text-gray-900">{{ camera.timelapse_time || 'Default' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Blackout Start</p>
-            <p class="text-white">{{ camera.blackout_start || 'None' }}</p>
+            <p class="text-sm text-gray-500">Blackout Start</p>
+            <p class="text-gray-900">{{ camera.blackout_start || 'None' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Blackout End</p>
-            <p class="text-white">{{ camera.blackout_end || 'None' }}</p>
+            <p class="text-sm text-gray-500">Blackout End</p>
+            <p class="text-gray-900">{{ camera.blackout_end || 'None' }}</p>
           </div>
           <div>
-            <p class="text-sm text-dark-400">Consecutive Errors</p>
-            <p class="text-white">{{ camera.consecutive_errors }}</p>
+            <p class="text-sm text-gray-500">Consecutive Errors</p>
+            <p class="text-gray-900">{{ camera.consecutive_errors }}</p>
           </div>
         </div>
       </div>
     </template>
 
     <div v-else class="text-center py-12">
-      <p class="text-dark-400">Camera not found</p>
-      <router-link to="/cameras" class="text-primary-400 mt-4 inline-block">
+      <p class="text-gray-500">Camera not found</p>
+      <router-link to="/cameras" class="text-primary-600 mt-4 inline-block">
         Back to Cameras
       </router-link>
     </div>
@@ -185,10 +185,10 @@ const statusText = computed(() => {
 })
 
 const statusColor = computed(() => {
-  if (!camera.value?.is_active) return 'text-dark-400'
-  if (camera.value?.consecutive_errors >= 3) return 'text-red-400'
-  if (camera.value?.consecutive_errors > 0) return 'text-yellow-400'
-  return 'text-green-400'
+  if (!camera.value?.is_active) return 'text-gray-500'
+  if (camera.value?.consecutive_errors >= 3) return 'text-red-500'
+  if (camera.value?.consecutive_errors > 0) return 'text-yellow-500'
+  return 'text-green-500'
 })
 
 function formatTime(dateStr) {
