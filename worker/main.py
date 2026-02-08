@@ -12,8 +12,10 @@ import asyncio
 import logging
 import signal
 import sys
+import time
 from typing import Optional
 
+import redis.asyncio as redis
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
@@ -33,6 +35,17 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
+
+
+async def update_heartbeat() -> None:
+    """Update worker heartbeat in Redis."""
+    settings = get_settings()
+    try:
+        r = redis.from_url(settings.redis_url)
+        await r.set("worker:heartbeat", str(time.time()), ex=300)  # Expires in 5 minutes
+        await r.close()
+    except Exception as e:
+        logger.warning(f"Failed to update heartbeat: {e}")
 
 
 class WorkerManager:
@@ -128,6 +141,16 @@ class WorkerManager:
         )
         logger.info(f"Scheduled cleanup at {self.settings.cleanup_time}")
 
+        # Add heartbeat job - runs every 30 seconds
+        self.scheduler.add_job(
+            update_heartbeat,
+            trigger=IntervalTrigger(seconds=30),
+            id="heartbeat",
+            name="Worker Heartbeat",
+            replace_existing=True,
+        )
+        logger.info("Scheduled heartbeat every 30s")
+
     async def start(self) -> None:
         """Start the worker."""
         logger.info("Starting UniFi Timelapse Worker...")
@@ -140,6 +163,9 @@ class WorkerManager:
         await self.setup_scheduler()
         self.scheduler.start()
         logger.info("Scheduler started")
+
+        # Send initial heartbeat
+        await update_heartbeat()
 
         # Run initial capture cycle
         logger.info("Running initial capture cycle...")

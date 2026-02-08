@@ -113,8 +113,34 @@ async def system_info(
     except Exception:
         pass
 
+    # Determine overall API status
+    if db_ok and redis_ok:
+        status = "healthy"
+    elif db_ok or redis_ok:
+        status = "degraded"
+    else:
+        status = "unhealthy"
+
+    # Check worker status via Redis heartbeat
+    worker_status = "unknown"
+    try:
+        r = redis.from_url(settings.redis_url)
+        heartbeat = await r.get("worker:heartbeat")
+        if heartbeat:
+            # Check if heartbeat is recent (within 2 minutes)
+            last_beat = float(heartbeat)
+            if time.time() - last_beat < 120:
+                worker_status = "healthy"
+            else:
+                worker_status = "unhealthy"
+        await r.close()
+    except Exception:
+        pass
+
     return SystemInfoResponse(
         version=__version__,
+        status=status,
+        worker_status=worker_status,
         uptime_seconds=time.time() - _startup_time,
         python_version=sys.version,
         database_connected=db_ok,
