@@ -249,8 +249,8 @@ async function deleteCamera() {
 async function testCamera(camera) {
   notifications.info('Testing...', `Testing connection to ${camera.name}`)
   const result = await camerasStore.testCamera(camera.id)
-  if (result.success && result.result.reachable) {
-    notifications.success('Success', `${camera.name} is reachable`)
+  if (result.success && result.result?.success) {
+    notifications.success('Success', `${camera.name} is reachable (${result.result.response_time_ms}ms)`)
   } else {
     notifications.error('Failed', result.result?.error || result.error || 'Camera is not reachable')
   }
