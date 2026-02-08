@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-4 right-4 z-50 space-y-2">
+  <div class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 space-y-2 sm:w-96">
     <transition-group
       enter-active-class="transform ease-out duration-300 transition"
       enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
@@ -12,7 +12,7 @@
         v-for="notification in notifications"
         :key="notification.id"
         :class="[
-          'max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto border overflow-hidden',
+          'w-full bg-white shadow-lg rounded-lg pointer-events-auto border overflow-hidden',
           borderClass(notification.type),
         ]"
       >
