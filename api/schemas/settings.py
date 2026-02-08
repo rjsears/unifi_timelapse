@@ -84,6 +84,8 @@ class SystemInfoResponse(BaseModel):
     """Schema for system information response."""
 
     version: str
+    status: str  # healthy, degraded, unhealthy
+    worker_status: str  # healthy, unknown, unhealthy
     uptime_seconds: float
     python_version: str
     database_connected: bool

@@ -438,7 +438,7 @@ async function saveSettings() {
 
 async function loadNotifications() {
   try {
-    const response = await api.get('/notifications/configs')
+    const response = await api.get('/notifications')
     notificationConfigs.value = response.data
   } catch (error) {
     console.error('Failed to load notifications:', error)
@@ -447,7 +447,7 @@ async function loadNotifications() {
 
 async function addNotification() {
   try {
-    await api.post('/notifications/configs', notificationForm.value)
+    await api.post('/notifications', notificationForm.value)
     toasts.success('Added', 'Notification channel added')
     showAddNotification.value = false
     notificationForm.value = {
@@ -466,7 +466,7 @@ async function addNotification() {
 
 async function testNotification(config) {
   try {
-    await api.post(`/notifications/configs/${config.id}/test`)
+    await api.post(`/notifications/${config.id}/test`)
     toasts.success('Sent', 'Test notification sent')
   } catch (error) {
     toasts.error('Error', 'Failed to send test notification')
@@ -476,7 +476,7 @@ async function testNotification(config) {
 async function deleteNotification(config) {
   if (!confirm(`Delete notification channel "${config.name}"?`)) return
   try {
-    await api.delete(`/notifications/configs/${config.id}`)
+    await api.delete(`/notifications/${config.id}`)
     toasts.success('Deleted', 'Notification channel deleted')
     await loadNotifications()
   } catch (error) {
