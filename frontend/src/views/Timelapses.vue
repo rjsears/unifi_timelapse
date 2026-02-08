@@ -208,7 +208,7 @@ async function loadTimelapses() {
     if (filters.value.type) params.append('type', filters.value.type)
 
     const response = await api.get(`/timelapses?${params}`)
-    timelapses.value = response.data
+    timelapses.value = response.data.timelapses || []
   } catch (error) {
     notifications.error('Error', 'Failed to load timelapses')
   } finally {
@@ -219,7 +219,7 @@ async function loadTimelapses() {
 async function loadCameras() {
   try {
     const response = await api.get('/cameras')
-    cameras.value = response.data
+    cameras.value = response.data.cameras || []
   } catch (error) {
     console.error('Failed to load cameras:', error)
   }
@@ -272,10 +272,15 @@ function statusClass(status) {
 }
 
 function formatDateRange(timelapse) {
-  if (timelapse.date_start === timelapse.date_end) {
-    return format(new Date(timelapse.date_start), 'MMM d, yyyy')
+  if (!timelapse.date_start) return 'N/A'
+  try {
+    if (timelapse.date_start === timelapse.date_end) {
+      return format(new Date(timelapse.date_start), 'MMM d, yyyy')
+    }
+    return `${format(new Date(timelapse.date_start), 'MMM d')} - ${format(new Date(timelapse.date_end), 'MMM d, yyyy')}`
+  } catch {
+    return 'Invalid date'
   }
-  return `${format(new Date(timelapse.date_start), 'MMM d')} - ${format(new Date(timelapse.date_end), 'MMM d, yyyy')}`
 }
 
 function formatDuration(seconds) {

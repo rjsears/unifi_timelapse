@@ -172,8 +172,10 @@ async function loadHealth() {
       api.get('/health/cameras'),
     ])
 
-    cameras.value = camerasResponse.data.map(camera => {
-      const health = healthResponse.data.find(h => h.camera_id === camera.id) || {}
+    const camerasList = camerasResponse.data.cameras || []
+    const healthList = Array.isArray(healthResponse.data) ? healthResponse.data : []
+    cameras.value = camerasList.map(camera => {
+      const health = healthList.find(h => h.camera_id === camera.id) || {}
       return {
         ...camera,
         uptime: health.uptime_percent || 100,
@@ -193,9 +195,10 @@ async function loadHealth() {
 async function loadAlerts() {
   try {
     const response = await api.get('/health/alerts?limit=10')
-    alerts.value = response.data
+    alerts.value = response.data || []
   } catch (error) {
-    console.error('Failed to load alerts:', error)
+    // Endpoint may not exist yet, silently fail
+    alerts.value = []
   }
 }
 
@@ -220,7 +223,12 @@ function getUptimeClass(uptime) {
 }
 
 function formatTime(dateStr) {
-  return formatDistanceToNow(new Date(dateStr), { addSuffix: true })
+  if (!dateStr) return 'Never'
+  try {
+    return formatDistanceToNow(new Date(dateStr), { addSuffix: true })
+  } catch {
+    return 'Invalid'
+  }
 }
 
 onMounted(() => {
