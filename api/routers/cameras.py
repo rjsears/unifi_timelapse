@@ -8,7 +8,7 @@ import socket
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -322,4 +322,56 @@ async def test_camera(
         return CameraTestResponse(
             success=False,
             error=str(e),
+        )
+
+
+@router.get("/{camera_id}/preview")
+async def get_camera_preview(
+    camera_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    """
+    Get a live preview image from the camera.
+    """
+    result = await db.execute(
+        select(Camera).where(Camera.id == camera_id)
+    )
+    camera = result.scalar_one_or_none()
+
+    if camera is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Camera not found",
+        )
+
+    settings = get_settings()
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.capture_timeout) as client:
+            response = await client.get(camera.url)
+            response.raise_for_status()
+
+            # Return the image with appropriate content type
+            content_type = response.headers.get("content-type", "image/jpeg")
+            return Response(
+                content=response.content,
+                media_type=content_type,
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
+
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Camera connection timeout",
+        )
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Camera returned error: {e.response.status_code}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Failed to fetch preview: {str(e)}",
         )
