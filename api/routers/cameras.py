@@ -329,10 +329,10 @@ async def test_camera(
 async def get_camera_preview(
     camera_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ) -> Response:
     """
     Get a live preview image from the camera.
+    No auth required - proxied from local network cameras.
     """
     result = await db.execute(
         select(Camera).where(Camera.id == camera_id)
