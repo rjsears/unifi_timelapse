@@ -375,3 +375,46 @@ async def get_camera_preview(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Failed to fetch preview: {str(e)}",
         )
+
+
+@router.post("/{camera_id}/capture")
+async def capture_now(
+    camera_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Trigger an immediate capture from the camera.
+    """
+    from api.services.capture import CaptureService
+
+    result = await db.execute(
+        select(Camera).where(Camera.id == camera_id)
+    )
+    camera = result.scalar_one_or_none()
+
+    if camera is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Camera not found",
+        )
+
+    settings = get_settings()
+    capture_service = CaptureService(db)
+
+    async with httpx.AsyncClient(timeout=settings.capture_timeout) as client:
+        capture_result = await capture_service.capture_single(camera, client)
+
+    await db.commit()
+
+    if capture_result.success:
+        return {
+            "success": True,
+            "message": f"Image captured from {camera.name}",
+            "image_id": str(capture_result.image.id) if capture_result.image else None,
+        }
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=capture_result.error or "Capture failed",
+        )
