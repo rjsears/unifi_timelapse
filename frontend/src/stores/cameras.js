@@ -38,29 +38,49 @@ export const useCamerasStore = defineStore('cameras', () => {
 
   async function createCamera(data) {
     try {
-      const response = await api.post('/cameras', data)
+      // Clean up empty strings - convert to null for API
+      const cleanData = { ...data }
+      if (cleanData.hostname === '') cleanData.hostname = null
+      if (cleanData.ip_address === '') cleanData.ip_address = null
+
+      const response = await api.post('/cameras', cleanData)
       cameras.value.push(response.data)
       return { success: true, camera: response.data }
     } catch (err) {
+      const detail = err.response?.data?.detail
+      // Handle validation error arrays from Pydantic
+      const errorMsg = Array.isArray(detail)
+        ? detail.map(e => e.msg).join(', ')
+        : detail || 'Failed to create camera'
       return {
         success: false,
-        error: err.response?.data?.detail || 'Failed to create camera',
+        error: errorMsg,
       }
     }
   }
 
   async function updateCamera(id, data) {
     try {
-      const response = await api.put(`/cameras/${id}`, data)
+      // Clean up empty strings - convert to null for API
+      const cleanData = { ...data }
+      if (cleanData.hostname === '') cleanData.hostname = null
+      if (cleanData.ip_address === '') cleanData.ip_address = null
+
+      const response = await api.put(`/cameras/${id}`, cleanData)
       const index = cameras.value.findIndex(c => c.id === id)
       if (index !== -1) {
         cameras.value[index] = response.data
       }
       return { success: true, camera: response.data }
     } catch (err) {
+      const detail = err.response?.data?.detail
+      // Handle validation error arrays from Pydantic
+      const errorMsg = Array.isArray(detail)
+        ? detail.map(e => e.msg).join(', ')
+        : detail || 'Failed to update camera'
       return {
         success: false,
-        error: err.response?.data?.detail || 'Failed to update camera',
+        error: errorMsg,
       }
     }
   }
