@@ -7,7 +7,8 @@ Camera image capture operations.
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from io import BytesIO
 from typing import List, Optional
 
@@ -46,6 +47,11 @@ class CaptureService:
         self.settings = get_settings()
         self.storage = StorageService()
 
+    def _get_local_time(self) -> datetime:
+        """Get current time in configured timezone as naive datetime."""
+        tz = ZoneInfo(self.settings.tz)
+        return datetime.now(tz).replace(tzinfo=None)
+
     async def capture_single(
         self,
         camera: Camera,
@@ -61,7 +67,7 @@ class CaptureService:
         Returns:
             CaptureResult with success/failure info
         """
-        timestamp = datetime.now(timezone.utc)
+        timestamp = self._get_local_time()
 
         # Check blackout period
         if camera.is_in_blackout():
@@ -205,7 +211,7 @@ class CaptureService:
                     CaptureResult(
                         camera=cameras[i],
                         success=False,
-                        timestamp=datetime.now(timezone.utc),
+                        timestamp=self._get_local_time(),
                         error=str(result),
                     )
                 )
@@ -221,7 +227,7 @@ class CaptureService:
         Returns:
             List of cameras due for capture
         """
-        now = datetime.now(timezone.utc)
+        now = self._get_local_time()
 
         result = await self.db.execute(
             select(Camera).where(Camera.is_active == True)
