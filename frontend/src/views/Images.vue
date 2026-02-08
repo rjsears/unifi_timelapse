@@ -216,7 +216,7 @@ async function loadImages() {
 async function loadCameras() {
   try {
     const response = await api.get('/cameras')
-    cameras.value = response.data
+    cameras.value = response.data.cameras || []
   } catch (error) {
     console.error('Failed to load cameras:', error)
   }
