@@ -8,11 +8,15 @@ from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import get_current_user
+from api.config import get_settings
 from api.database import get_db
 from api.models.camera import Camera
 from api.models.image import Image
@@ -175,8 +179,6 @@ async def delete_image(
         )
 
     # Delete file from disk
-    import os
-    from api.config import get_settings
     settings = get_settings()
     file_path = f"{settings.output_base_path}/{image.file_path}"
     if os.path.exists(file_path):
@@ -243,3 +245,110 @@ async def get_latest_image(
         )
 
     return ImageResponse.model_validate(image)
+
+
+@router.get("/{image_id}/thumbnail")
+async def get_image_thumbnail(
+    image_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    """
+    Get image thumbnail. No auth required for img tags.
+    """
+    result = await db.execute(
+        select(Image).where(Image.id == image_id)
+    )
+    image = result.scalar_one_or_none()
+
+    if image is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    settings = get_settings()
+    file_path = f"{settings.output_base_path}/{image.file_path}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image file not found",
+        )
+
+    # Return full image as thumbnail (TODO: generate actual thumbnails)
+    return FileResponse(
+        file_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@router.get("/{image_id}/full")
+async def get_image_full(
+    image_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    """
+    Get full image. No auth required for img tags.
+    """
+    result = await db.execute(
+        select(Image).where(Image.id == image_id)
+    )
+    image = result.scalar_one_or_none()
+
+    if image is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    settings = get_settings()
+    file_path = f"{settings.output_base_path}/{image.file_path}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image file not found",
+        )
+
+    return FileResponse(
+        file_path,
+        media_type="image/jpeg",
+    )
+
+
+@router.get("/{image_id}/download")
+async def download_image(
+    image_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    """
+    Download image as attachment. No auth required.
+    """
+    result = await db.execute(
+        select(Image).where(Image.id == image_id)
+    )
+    image = result.scalar_one_or_none()
+
+    if image is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    settings = get_settings()
+    file_path = f"{settings.output_base_path}/{image.file_path}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image file not found",
+        )
+
+    filename = os.path.basename(image.file_path)
+
+    return FileResponse(
+        file_path,
+        media_type="image/jpeg",
+        filename=filename,
+    )
