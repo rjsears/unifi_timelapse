@@ -54,10 +54,10 @@ class Settings(BaseSettings):
         default="/output", description="Base path for output files"
     )
     images_subpath: str = Field(
-        default="images", description="Subdirectory for images"
+        default="unifi/images", description="Subdirectory for images"
     )
     videos_subpath: str = Field(
-        default="videos", description="Subdirectory for videos"
+        default="unifi/videos", description="Subdirectory for videos"
     )
 
     # Capture defaults
