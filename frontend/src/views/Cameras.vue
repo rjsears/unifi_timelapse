@@ -131,6 +131,34 @@
             </label>
           </div>
         </div>
+
+        <!-- Blackout Period -->
+        <div class="border-t border-gray-200 pt-4">
+          <h4 class="text-sm font-medium text-gray-900 mb-3">Blackout Period</h4>
+          <p class="text-xs text-gray-500 mb-3">Skip image capture during this time window (e.g., nighttime)</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+              <input
+                v-model="cameraForm.blackout_start"
+                type="time"
+                class="input"
+                placeholder="22:00"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+              <input
+                v-model="cameraForm.blackout_end"
+                type="time"
+                class="input"
+                placeholder="06:00"
+              />
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Leave both empty to capture 24/7. Supports overnight periods (e.g., 22:00 to 06:00).</p>
+        </div>
+
         <div class="flex justify-end space-x-3 pt-4">
           <button type="button" class="btn-secondary" @click="showAddModal = false">
             Cancel
@@ -186,6 +214,8 @@ const cameraForm = ref({
   capture_interval: 30,
   is_active: true,
   timelapse_enabled: true,
+  blackout_start: '',
+  blackout_end: '',
 })
 
 function resetForm() {
@@ -196,13 +226,20 @@ function resetForm() {
     capture_interval: 30,
     is_active: true,
     timelapse_enabled: true,
+    blackout_start: '',
+    blackout_end: '',
   }
   editingCamera.value = null
 }
 
 function editCamera(camera) {
   editingCamera.value = camera
-  cameraForm.value = { ...camera }
+  cameraForm.value = {
+    ...camera,
+    // Convert "HH:MM:SS" to "HH:MM" for time inputs
+    blackout_start: camera.blackout_start ? camera.blackout_start.slice(0, 5) : '',
+    blackout_end: camera.blackout_end ? camera.blackout_end.slice(0, 5) : '',
+  }
   showAddModal.value = true
 }
 
@@ -213,6 +250,9 @@ function confirmDelete(camera) {
 
 async function saveCamera() {
   const data = { ...cameraForm.value }
+  // Convert empty blackout times to null for API
+  if (!data.blackout_start) data.blackout_start = null
+  if (!data.blackout_end) data.blackout_end = null
 
   if (editingCamera.value) {
     const result = await camerasStore.updateCamera(editingCamera.value.id, data)
