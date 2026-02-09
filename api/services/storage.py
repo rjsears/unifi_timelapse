@@ -17,6 +17,10 @@ class StorageService:
     def __init__(self):
         self.settings = get_settings()
 
+    def _normalize_camera_name(self, camera_name: str) -> str:
+        """Convert camera name to filesystem-safe format (lowercase with underscores)."""
+        return camera_name.lower().replace(" ", "_")
+
     def get_image_dir(self, camera_name: str, date: datetime) -> Path:
         """
         Get the directory path for storing images.
@@ -30,8 +34,9 @@ class StorageService:
         Returns:
             Path to the image directory
         """
+        safe_name = self._normalize_camera_name(camera_name)
         date_str = date.strftime("%Y%m%d")
-        dir_path = Path(self.settings.images_path) / camera_name / date_str
+        dir_path = Path(self.settings.images_path) / safe_name / date_str
 
         dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path
@@ -49,7 +54,8 @@ class StorageService:
         Returns:
             Path to the video directory
         """
-        dir_path = Path(self.settings.videos_path) / camera_name / video_type
+        safe_name = self._normalize_camera_name(camera_name)
+        dir_path = Path(self.settings.videos_path) / safe_name / video_type
 
         dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path
@@ -65,8 +71,9 @@ class StorageService:
         Returns:
             Image filename
         """
+        safe_name = self._normalize_camera_name(camera_name)
         timestamp_str = timestamp.strftime("%Y%m%d%H%M%S")
-        return f"{timestamp_str}_{camera_name}.jpeg"
+        return f"{timestamp_str}_{safe_name}.jpeg"
 
     def get_image_path(self, camera_name: str, timestamp: datetime) -> Path:
         """
@@ -94,9 +101,10 @@ class StorageService:
         Returns:
             Relative path from output root
         """
+        safe_name = self._normalize_camera_name(camera_name)
         date_str = timestamp.strftime("%Y%m%d")
         filename = self.get_image_filename(camera_name, timestamp)
-        return f"{self.settings.images_subpath}/{camera_name}/{date_str}/{filename}"
+        return f"{self.settings.images_subpath}/{safe_name}/{date_str}/{filename}"
 
     def get_daily_video_filename(self, date: datetime) -> str:
         """
@@ -145,7 +153,8 @@ class StorageService:
         Returns:
             Relative path from output root
         """
-        return f"{self.settings.videos_subpath}/{camera_name}/{video_type}/{filename}"
+        safe_name = self._normalize_camera_name(camera_name)
+        return f"{self.settings.videos_subpath}/{safe_name}/{video_type}/{filename}"
 
     def save_image(
         self,
@@ -239,6 +248,7 @@ class StorageService:
         Returns:
             List of image file paths, sorted by name
         """
+        # get_image_dir already normalizes the name
         dir_path = self.get_image_dir(camera_name, date)
         if not dir_path.exists():
             return []
