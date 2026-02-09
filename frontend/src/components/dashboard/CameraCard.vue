@@ -1,10 +1,10 @@
 <template>
   <router-link
     :to="`/cameras/${camera.id}`"
-    class="block bg-white rounded-lg border border-gray-200 hover:border-primary-500/50 transition-colors shadow-sm overflow-hidden"
+    class="flex bg-white rounded-lg border border-gray-200 hover:border-primary-500/50 transition-colors shadow-sm overflow-hidden"
   >
-    <!-- Thumbnail preview -->
-    <div class="aspect-video bg-gray-100 relative">
+    <!-- Thumbnail preview (small) -->
+    <div class="w-20 h-16 bg-gray-100 relative flex-shrink-0">
       <img
         :src="`/api/cameras/${camera.id}/preview?t=${refreshKey}`"
         class="w-full h-full object-cover"
@@ -15,20 +15,20 @@
         v-if="imageError"
         class="absolute inset-0 flex items-center justify-center text-gray-400"
       >
-        <VideoCameraIcon class="w-8 h-8" />
+        <VideoCameraIcon class="w-5 h-5" />
       </div>
     </div>
     <!-- Camera info -->
-    <div class="p-3">
-      <div class="flex items-center justify-between mb-1">
+    <div class="p-2 flex-1 min-w-0">
+      <div class="flex items-center justify-between mb-0.5">
         <h3 class="font-medium text-gray-900 truncate text-sm">{{ camera.name }}</h3>
-        <span :class="statusClass" class="text-xs">
+        <span :class="statusClass" class="text-xs ml-2 flex-shrink-0">
           <span class="w-1.5 h-1.5 rounded-full mr-1" :class="statusDotClass"></span>
           {{ statusText }}
         </span>
       </div>
-      <div class="text-xs text-gray-500 space-y-0.5">
-        <p>{{ camera.hostname || camera.ip_address }}</p>
+      <div class="text-xs text-gray-500">
+        <p class="truncate">{{ camera.hostname || camera.ip_address }}</p>
         <p v-if="camera.last_capture_at">
           {{ formatTime(camera.last_capture_at) }}
         </p>
