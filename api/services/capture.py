@@ -244,7 +244,11 @@ class CaptureService:
             if camera.last_capture_at is None:
                 due_cameras.append(camera)
             else:
-                elapsed = (now - camera.last_capture_at).total_seconds()
+                # Strip timezone info for comparison (DB may return tz-aware)
+                last_capture = camera.last_capture_at
+                if last_capture.tzinfo is not None:
+                    last_capture = last_capture.replace(tzinfo=None)
+                elapsed = (now - last_capture).total_seconds()
                 if elapsed >= camera.capture_interval:
                     due_cameras.append(camera)
 
