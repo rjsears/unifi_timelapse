@@ -31,6 +31,14 @@ class SettingUpdate(BaseModel):
     value: Any = Field(..., description="New value for the setting")
 
 
+class SettingsBulkUpdate(BaseModel):
+    """Schema for bulk updating settings."""
+
+    settings: dict[str, Any] = Field(
+        ..., description="Dictionary of setting keys to their new values"
+    )
+
+
 class SettingsListResponse(BaseModel):
     """Schema for settings list response."""
 

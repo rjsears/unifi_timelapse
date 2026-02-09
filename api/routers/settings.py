@@ -5,6 +5,8 @@ Global settings management.
 """
 
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,6 +48,59 @@ async def list_settings(
                 updated_at=s.updated_at,
             )
             for s in settings
+        ],
+        categories=sorted(categories),
+    )
+
+
+@router.put("", response_model=SettingsListResponse)
+async def bulk_update_settings(
+    updates: dict[str, Any],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
+) -> SettingsListResponse:
+    """
+    Bulk update multiple settings at once (admin only).
+
+    Accepts a dictionary where keys are setting names and values are the new values.
+    """
+    # Get all settings
+    result = await db.execute(select(SystemSettings))
+    settings_map = {s.key: s for s in result.scalars().all()}
+
+    updated_settings = []
+
+    for key, value in updates.items():
+        setting = settings_map.get(key)
+        if setting is not None:
+            setting.set_typed_value(value)
+            updated_settings.append(setting)
+
+    await db.commit()
+
+    # Refresh all updated settings
+    for setting in updated_settings:
+        await db.refresh(setting)
+
+    # Return all settings
+    result = await db.execute(
+        select(SystemSettings).order_by(SystemSettings.category, SystemSettings.key)
+    )
+    all_settings = result.scalars().all()
+    categories = list({s.category for s in all_settings})
+
+    return SettingsListResponse(
+        settings=[
+            SettingResponse(
+                id=s.id,
+                key=s.key,
+                value=s.get_typed_value(),
+                type=s.type,
+                category=s.category,
+                description=s.description,
+                updated_at=s.updated_at,
+            )
+            for s in all_settings
         ],
         categories=sorted(categories),
     )
