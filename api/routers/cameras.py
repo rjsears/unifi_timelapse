@@ -411,7 +411,7 @@ async def capture_now(
         return {
             "success": True,
             "message": f"Image captured from {camera.name}",
-            "image_id": str(capture_result.image.id) if capture_result.image else None,
+            "file_path": capture_result.file_path,
         }
     else:
         raise HTTPException(
