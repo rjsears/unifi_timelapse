@@ -6,111 +6,217 @@
         <h1 class="text-2xl font-bold text-gray-900">Timelapses</h1>
         <p class="text-gray-500">View and manage timelapse videos</p>
       </div>
-      <button class="btn-primary" @click="showGenerateModal = true">
+      <button
+        v-if="activeTab === 'videos'"
+        class="btn-primary"
+        @click="showGenerateModal = true"
+      >
         <PlayIcon class="w-5 h-5 mr-2" />
         Generate Timelapse
       </button>
+      <button
+        v-else
+        class="btn-primary"
+        @click="openAddConfigModal"
+      >
+        <PlusIcon class="w-5 h-5 mr-2" />
+        Add Config
+      </button>
     </div>
 
-    <!-- Filters -->
-    <div class="card p-4">
-      <div class="flex flex-wrap gap-4">
-        <select v-model="filters.camera" class="input w-auto">
-          <option value="">All Cameras</option>
-          <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
-            {{ camera.name }}
-          </option>
-        </select>
-        <select v-model="filters.status" class="input w-auto">
-          <option value="">All Status</option>
-          <option value="completed">Completed</option>
-          <option value="processing">Processing</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-        <select v-model="filters.type" class="input w-auto">
-          <option value="">All Types</option>
-          <option value="daily">Daily</option>
-          <option value="multiday">Multi-day</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Timelapse list -->
-    <div class="card">
-      <div v-if="loading" class="flex justify-center py-12">
-        <div class="spinner w-8 h-8"></div>
-      </div>
-      <div v-else-if="timelapses.length === 0" class="text-center py-12">
-        <FilmIcon class="w-12 h-12 mx-auto text-gray-400" />
-        <h3 class="mt-4 text-lg font-medium text-gray-900">No timelapses found</h3>
-        <p class="mt-2 text-gray-500">Timelapses will appear here once generated.</p>
-      </div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        <div
-          v-for="timelapse in timelapses"
-          :key="timelapse.id"
-          class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
+    <!-- Tabs -->
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          :class="[
+            'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
+            activeTab === tab.id
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300',
+          ]"
+          @click="activeTab = tab.id"
         >
-          <!-- Thumbnail -->
-          <div class="aspect-video bg-gray-100 relative">
-            <img
-              v-if="timelapse.status === 'completed'"
-              :src="`/api/timelapses/${timelapse.id}/thumbnail`"
-              class="w-full h-full object-cover"
-              @error="$event.target.style.display = 'none'"
-            />
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div
-                v-if="timelapse.status === 'processing'"
-                class="bg-gray-900/80 px-3 py-2 rounded-lg flex items-center text-white"
-              >
-                <div class="spinner w-4 h-4 mr-2"></div>
-                Processing...
-              </div>
-              <PlayCircleIcon
-                v-else-if="timelapse.status === 'completed'"
-                class="w-12 h-12 text-white/80 cursor-pointer hover:text-white"
-                @click="playTimelapse(timelapse)"
-              />
-            </div>
-          </div>
-          <!-- Info -->
-          <div class="p-4">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-medium text-gray-900">{{ timelapse.camera_name }}</h3>
-              <span :class="statusClass(timelapse.status)">{{ timelapse.status }}</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              {{ formatDateRange(timelapse) }}
-            </p>
-            <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs text-gray-400">
-              {{ timelapse.frame_count }} frames • {{ formatDuration(timelapse.duration_seconds) }}
-            </div>
-            <div v-if="timelapse.status === 'failed'" class="mt-2 text-xs text-red-500">
-              {{ timelapse.error_message }}
-            </div>
-            <!-- Actions -->
-            <div class="mt-4 flex items-center space-x-2">
-              <button
+          {{ tab.name }}
+        </button>
+      </nav>
+    </div>
+
+    <!-- Videos Tab -->
+    <template v-if="activeTab === 'videos'">
+      <!-- Filters -->
+      <div class="card p-4">
+        <div class="flex flex-wrap gap-4">
+          <select v-model="filters.camera" class="input w-auto">
+            <option value="">All Cameras</option>
+            <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
+              {{ camera.name }}
+            </option>
+          </select>
+          <select v-model="filters.status" class="input w-auto">
+            <option value="">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="processing">Processing</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+          <select v-model="filters.type" class="input w-auto">
+            <option value="">All Types</option>
+            <option value="daily">Daily</option>
+            <option value="multiday">Multi-day</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Timelapse list -->
+      <div class="card">
+        <div v-if="loading" class="flex justify-center py-12">
+          <div class="spinner w-8 h-8"></div>
+        </div>
+        <div v-else-if="timelapses.length === 0" class="text-center py-12">
+          <FilmIcon class="w-12 h-12 mx-auto text-gray-400" />
+          <h3 class="mt-4 text-lg font-medium text-gray-900">No timelapses found</h3>
+          <p class="mt-2 text-gray-500">Timelapses will appear here once generated.</p>
+        </div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+          <div
+            v-for="timelapse in timelapses"
+            :key="timelapse.id"
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
+          >
+            <!-- Thumbnail -->
+            <div class="aspect-video bg-gray-100 relative">
+              <img
                 v-if="timelapse.status === 'completed'"
-                class="btn-secondary text-xs px-3 py-1"
-                @click="downloadTimelapse(timelapse)"
-              >
-                <ArrowDownTrayIcon class="w-4 h-4 mr-1" />
-                Download
-              </button>
-              <button
-                class="btn-secondary text-xs px-3 py-1 text-red-500 hover:text-red-600"
-                @click="confirmDelete(timelapse)"
-              >
-                <TrashIcon class="w-4 h-4" />
-              </button>
+                :src="`/api/timelapses/${timelapse.id}/thumbnail`"
+                class="w-full h-full object-cover"
+                @error="$event.target.style.display = 'none'"
+              />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div
+                  v-if="timelapse.status === 'processing'"
+                  class="bg-gray-900/80 px-3 py-2 rounded-lg flex items-center text-white"
+                >
+                  <div class="spinner w-4 h-4 mr-2"></div>
+                  Processing...
+                </div>
+                <PlayCircleIcon
+                  v-else-if="timelapse.status === 'completed'"
+                  class="w-12 h-12 text-white/80 cursor-pointer hover:text-white"
+                  @click="playTimelapse(timelapse)"
+                />
+              </div>
+            </div>
+            <!-- Info -->
+            <div class="p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-medium text-gray-900">{{ timelapse.camera_name }}</h3>
+                <span :class="statusClass(timelapse.status)">{{ timelapse.status }}</span>
+              </div>
+              <p class="text-sm text-gray-500">
+                {{ formatDateRange(timelapse) }}
+              </p>
+              <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs text-gray-400">
+                {{ timelapse.frame_count }} frames • {{ formatDuration(timelapse.duration_seconds) }}
+              </div>
+              <div v-if="timelapse.status === 'failed'" class="mt-2 text-xs text-red-500">
+                {{ timelapse.error_message }}
+              </div>
+              <!-- Actions -->
+              <div class="mt-4 flex items-center space-x-2">
+                <button
+                  v-if="timelapse.status === 'completed'"
+                  class="btn-secondary text-xs px-3 py-1"
+                  @click="downloadTimelapse(timelapse)"
+                >
+                  <ArrowDownTrayIcon class="w-4 h-4 mr-1" />
+                  Download
+                </button>
+                <button
+                  class="btn-secondary text-xs px-3 py-1 text-red-500 hover:text-red-600"
+                  @click="confirmDelete(timelapse)"
+                >
+                  <TrashIcon class="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
+
+    <!-- Scheduled Configs Tab -->
+    <template v-if="activeTab === 'configs'">
+      <div class="card">
+        <div v-if="configsLoading" class="flex justify-center py-12">
+          <div class="spinner w-8 h-8"></div>
+        </div>
+        <div v-else-if="multidayConfigs.length === 0" class="text-center py-12">
+          <CalendarDaysIcon class="w-12 h-12 mx-auto text-gray-400" />
+          <h3 class="mt-4 text-lg font-medium text-gray-900">No scheduled configs</h3>
+          <p class="mt-2 text-gray-500">Create a configuration to schedule multi-day timelapses.</p>
+          <button class="btn-primary mt-4" @click="openAddConfigModal">
+            <PlusIcon class="w-5 h-5 mr-2" />
+            Add Config
+          </button>
+        </div>
+        <table v-else class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Camera</th>
+              <th>Schedule</th>
+              <th>Coverage</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="config in multidayConfigs" :key="config.id">
+              <td class="text-gray-900 font-medium">{{ config.name }}</td>
+              <td class="text-gray-700">{{ getCameraName(config.camera_id) }}</td>
+              <td class="text-gray-700">
+                {{ formatDay(config.generation_day) }} {{ formatTime(config.generation_time) }}
+              </td>
+              <td class="text-gray-700">
+                {{ config.days_to_include }} days, {{ config.images_per_hour }}/hr
+              </td>
+              <td>
+                <span :class="config.is_enabled ? 'badge-success' : 'badge'">
+                  {{ config.is_enabled ? 'Enabled' : 'Disabled' }}
+                </span>
+              </td>
+              <td>
+                <div class="flex items-center space-x-2">
+                  <button
+                    class="text-gray-500 hover:text-primary-600"
+                    title="Edit"
+                    @click="openEditConfigModal(config)"
+                  >
+                    <PencilIcon class="w-4 h-4" />
+                  </button>
+                  <button
+                    class="text-gray-500 hover:text-green-600"
+                    title="Trigger Now"
+                    @click="triggerConfig(config)"
+                  >
+                    <PlayIcon class="w-4 h-4" />
+                  </button>
+                  <button
+                    class="text-gray-500 hover:text-red-500"
+                    title="Delete"
+                    @click="confirmDeleteConfig(config)"
+                  >
+                    <TrashIcon class="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
     <!-- Generate Modal -->
     <Modal v-model="showGenerateModal" title="Generate Timelapse" size="md">
@@ -160,24 +266,177 @@
         <button class="btn-danger" @click="deleteTimelapse">Delete</button>
       </div>
     </Modal>
+
+    <!-- Config Add/Edit Modal -->
+    <Modal v-model="showConfigModal" :title="editingConfig ? 'Edit Config' : 'Add Config'" size="lg">
+      <form @submit.prevent="saveConfig" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              v-model="configForm.name"
+              type="text"
+              class="input"
+              placeholder="Weekly Summary"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
+            <select
+              v-model="configForm.camera_id"
+              class="input"
+              :disabled="!!editingConfig"
+              required
+            >
+              <option value="">Select a camera</option>
+              <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
+                {{ camera.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Generation Day</label>
+            <select v-model="configForm.generation_day" class="input" required>
+              <option value="sunday">Sunday</option>
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
+              <option value="saturday">Saturday</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Generation Time</label>
+            <input
+              v-model="configForm.generation_time"
+              type="time"
+              class="input"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Days to Include</label>
+            <input
+              v-model.number="configForm.days_to_include"
+              type="number"
+              min="1"
+              max="365"
+              class="input"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Images per Hour</label>
+            <input
+              v-model.number="configForm.images_per_hour"
+              type="number"
+              min="1"
+              max="60"
+              class="input"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Frame Rate</label>
+            <input
+              v-model.number="configForm.frame_rate"
+              type="number"
+              min="1"
+              max="120"
+              class="input"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">CRF (Quality)</label>
+            <input
+              v-model.number="configForm.crf"
+              type="number"
+              min="0"
+              max="51"
+              class="input"
+              required
+            />
+            <p class="mt-1 text-xs text-gray-500">Lower = better quality</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pixel Format</label>
+            <select v-model="configForm.pixel_format" class="input" required>
+              <option value="yuv420p">yuv420p (Recommended)</option>
+              <option value="yuv444p">yuv444p (High Quality)</option>
+              <option value="rgb24">rgb24</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <label class="flex items-center">
+            <input v-model="configForm.is_enabled" type="checkbox" class="mr-2" />
+            <span class="text-gray-700">Enabled</span>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4">
+          <button type="button" class="btn-secondary" @click="showConfigModal = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary">
+            {{ editingConfig ? 'Save Changes' : 'Create Config' }}
+          </button>
+        </div>
+      </form>
+    </Modal>
+
+    <!-- Config Delete Confirmation -->
+    <Modal v-model="showDeleteConfigModal" title="Delete Configuration" size="sm">
+      <p class="text-gray-700">
+        Are you sure you want to delete the configuration "{{ configToDelete?.name }}"?
+      </p>
+      <div class="flex justify-end space-x-3 pt-6">
+        <button class="btn-secondary" @click="showDeleteConfigModal = false">Cancel</button>
+        <button class="btn-danger" @click="deleteConfig">Delete</button>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { format } from 'date-fns'
 import api from '@/api'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useMultidayStore } from '@/stores/multiday'
 import Modal from '@/components/ui/Modal.vue'
 import {
   PlayIcon,
+  PlusIcon,
   FilmIcon,
   PlayCircleIcon,
   ArrowDownTrayIcon,
   TrashIcon,
+  CalendarDaysIcon,
+  PencilIcon,
 } from '@heroicons/vue/24/outline'
 
 const notifications = useNotificationsStore()
+const multidayStore = useMultidayStore()
+
+const activeTab = ref('videos')
+const tabs = [
+  { id: 'videos', name: 'Videos' },
+  { id: 'configs', name: 'Scheduled Configs' },
+]
 
 const loading = ref(false)
 const timelapses = ref([])
@@ -187,6 +446,15 @@ const showPlayerModal = ref(false)
 const showDeleteModal = ref(false)
 const playingTimelapse = ref(null)
 const timelapseToDelete = ref(null)
+
+// Config state
+const showConfigModal = ref(false)
+const showDeleteConfigModal = ref(false)
+const editingConfig = ref(null)
+const configToDelete = ref(null)
+
+const configsLoading = computed(() => multidayStore.loading)
+const multidayConfigs = computed(() => multidayStore.configs)
 
 const filters = ref({
   camera: '',
@@ -198,6 +466,21 @@ const generateForm = ref({
   camera_id: '',
   date: format(new Date(), 'yyyy-MM-dd'),
 })
+
+const defaultConfigForm = {
+  camera_id: '',
+  name: '',
+  is_enabled: true,
+  images_per_hour: 2,
+  days_to_include: 7,
+  generation_day: 'sunday',
+  generation_time: '02:00',
+  frame_rate: 30,
+  crf: 20,
+  pixel_format: 'yuv444p',
+}
+
+const configForm = ref({ ...defaultConfigForm })
 
 async function loadTimelapses() {
   loading.value = true
@@ -290,7 +573,124 @@ function formatDuration(seconds) {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+// Config functions
+function getCameraName(cameraId) {
+  const camera = cameras.value.find(c => c.id === cameraId)
+  return camera?.name || 'Unknown'
+}
+
+function formatDay(day) {
+  return day.charAt(0).toUpperCase() + day.slice(1)
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return ''
+  // Handle both "HH:MM" and "HH:MM:SS" formats
+  const parts = timeStr.split(':')
+  const hours = parseInt(parts[0], 10)
+  const minutes = parts[1]
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  const hour12 = hours % 12 || 12
+  return `${hour12}:${minutes} ${ampm}`
+}
+
+function openAddConfigModal() {
+  editingConfig.value = null
+  configForm.value = { ...defaultConfigForm }
+  showConfigModal.value = true
+}
+
+function openEditConfigModal(config) {
+  editingConfig.value = config
+  configForm.value = {
+    camera_id: config.camera_id,
+    name: config.name,
+    is_enabled: config.is_enabled,
+    images_per_hour: config.images_per_hour,
+    days_to_include: config.days_to_include,
+    generation_day: config.generation_day,
+    generation_time: config.generation_time.slice(0, 5), // Convert "HH:MM:SS" to "HH:MM"
+    frame_rate: config.frame_rate,
+    crf: config.crf,
+    pixel_format: config.pixel_format,
+  }
+  showConfigModal.value = true
+}
+
+async function saveConfig() {
+  if (editingConfig.value) {
+    // Update existing config
+    const result = await multidayStore.updateConfig(editingConfig.value.id, {
+      name: configForm.value.name,
+      is_enabled: configForm.value.is_enabled,
+      images_per_hour: configForm.value.images_per_hour,
+      days_to_include: configForm.value.days_to_include,
+      generation_day: configForm.value.generation_day,
+      generation_time: configForm.value.generation_time,
+      frame_rate: configForm.value.frame_rate,
+      crf: configForm.value.crf,
+      pixel_format: configForm.value.pixel_format,
+    })
+    if (result.success) {
+      notifications.success('Saved', 'Configuration updated')
+      showConfigModal.value = false
+    } else {
+      notifications.error('Error', result.error)
+    }
+  } else {
+    // Create new config
+    const result = await multidayStore.createConfig({
+      camera_id: configForm.value.camera_id,
+      name: configForm.value.name,
+      is_enabled: configForm.value.is_enabled,
+      images_per_hour: configForm.value.images_per_hour,
+      days_to_include: configForm.value.days_to_include,
+      generation_day: configForm.value.generation_day,
+      generation_time: configForm.value.generation_time,
+      frame_rate: configForm.value.frame_rate,
+      crf: configForm.value.crf,
+      pixel_format: configForm.value.pixel_format,
+    })
+    if (result.success) {
+      notifications.success('Created', 'Configuration created')
+      showConfigModal.value = false
+    } else {
+      notifications.error('Error', result.error)
+    }
+  }
+}
+
+function confirmDeleteConfig(config) {
+  configToDelete.value = config
+  showDeleteConfigModal.value = true
+}
+
+async function deleteConfig() {
+  const result = await multidayStore.deleteConfig(configToDelete.value.id)
+  if (result.success) {
+    notifications.success('Deleted', 'Configuration deleted')
+    showDeleteConfigModal.value = false
+  } else {
+    notifications.error('Error', result.error)
+  }
+}
+
+async function triggerConfig(config) {
+  const result = await multidayStore.triggerGeneration(config.id)
+  if (result.success) {
+    notifications.success('Triggered', 'Multi-day timelapse generation started')
+  } else {
+    notifications.error('Error', result.error)
+  }
+}
+
 watch(filters, loadTimelapses, { deep: true })
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'configs') {
+    multidayStore.fetchConfigs()
+  }
+})
 
 onMounted(() => {
   loadCameras()
