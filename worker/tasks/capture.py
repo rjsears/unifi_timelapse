@@ -5,11 +5,12 @@ Scheduled task for capturing images from all active cameras.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from api.config import get_settings
 from api.database import get_db_context
 from api.services.capture import CaptureService
+from api.services.multiday_timelapse import MultidayTimelapseService
 from api.services.notification import NotificationService
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ async def run_capture_cycle() -> None:
     async with get_db_context() as db:
         capture_service = CaptureService(db)
         notification_service = NotificationService(db)
+        multiday_service = MultidayTimelapseService(db)
 
         # Get cameras due for capture
         cameras = await capture_service.get_cameras_due_for_capture()
@@ -47,10 +49,12 @@ async def run_capture_cycle() -> None:
         # Process results
         successful = 0
         failed = 0
+        cameras_captured = set()
 
         for result in results:
             if result.success:
                 successful += 1
+                cameras_captured.add(result.camera.id)
             else:
                 failed += 1
 
@@ -61,6 +65,19 @@ async def run_capture_cycle() -> None:
                         error=result.error or "Unknown error",
                         consecutive_failures=result.camera.consecutive_errors,
                     )
+
+        # Protect images for prospective collections
+        today = date.today()
+        for camera_id in cameras_captured:
+            try:
+                protected = await multiday_service.protect_images_for_prospective(
+                    camera_id=camera_id,
+                    captured_date=today,
+                )
+                if protected > 0:
+                    logger.debug(f"Protected {protected} images for camera {camera_id}")
+            except Exception as e:
+                logger.error(f"Error protecting images for camera {camera_id}: {e}")
 
         elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
         logger.info(

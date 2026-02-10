@@ -6,6 +6,8 @@ export const useMultidayStore = defineStore('multiday', () => {
   const configs = ref([])
   const loading = ref(false)
   const error = ref(null)
+  const availableDates = ref([])
+  const loadingDates = ref(false)
 
   async function fetchConfigs(cameraId = null) {
     loading.value = true
@@ -83,14 +85,108 @@ export const useMultidayStore = defineStore('multiday', () => {
     }
   }
 
+  // ============ Historical Mode (Custom Timelapse) ============
+
+  async function getAvailableDates(cameraId) {
+    loadingDates.value = true
+    try {
+      const response = await api.get(`/images/camera/${cameraId}/available-dates`)
+      availableDates.value = response.data
+      return { success: true, data: response.data }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || 'Failed to fetch available dates',
+      }
+    } finally {
+      loadingDates.value = false
+    }
+  }
+
+  async function generateHistorical(data) {
+    try {
+      const response = await api.post('/multiday/generate-historical', data)
+      return { success: true, result: response.data }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || 'Failed to start historical generation',
+      }
+    }
+  }
+
+  // ============ Prospective Mode ============
+
+  async function startCollection(configId, daysToCollect) {
+    try {
+      const response = await api.post(`/multiday/${configId}/start-collection`, {
+        days_to_collect: daysToCollect,
+      })
+      // Update local config
+      const index = configs.value.findIndex(c => c.id === configId)
+      if (index !== -1) {
+        configs.value[index].status = 'collecting'
+        configs.value[index].collection_start_date = response.data.collection_start_date
+        configs.value[index].collection_end_date = response.data.collection_end_date
+      }
+      return { success: true, result: response.data }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || 'Failed to start collection',
+      }
+    }
+  }
+
+  async function getProgress(configId) {
+    try {
+      const response = await api.get(`/multiday/${configId}/progress`)
+      return { success: true, data: response.data }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || 'Failed to get progress',
+      }
+    }
+  }
+
+  async function cancelCollection(configId, unprotectImages = false) {
+    try {
+      const response = await api.post(`/multiday/${configId}/cancel-collection`, {
+        unprotect_images: unprotectImages,
+      })
+      // Update local config
+      const index = configs.value.findIndex(c => c.id === configId)
+      if (index !== -1) {
+        configs.value[index].status = 'idle'
+        configs.value[index].collection_start_date = null
+        configs.value[index].collection_end_date = null
+        configs.value[index].collection_progress_days = 0
+      }
+      return { success: true, result: response.data }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || 'Failed to cancel collection',
+      }
+    }
+  }
+
   return {
     configs,
     loading,
     error,
+    availableDates,
+    loadingDates,
     fetchConfigs,
     createConfig,
     updateConfig,
     deleteConfig,
     triggerGeneration,
+    getAvailableDates,
+    generateHistorical,
+    startCollection,
+    getProgress,
+    cancelCollection,
   }
 })

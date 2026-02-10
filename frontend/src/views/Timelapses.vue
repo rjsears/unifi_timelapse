@@ -15,7 +15,7 @@
         Generate Timelapse
       </button>
       <button
-        v-else
+        v-else-if="activeTab === 'configs'"
         class="btn-primary"
         @click="openAddConfigModal"
       >
@@ -166,7 +166,8 @@
             <tr>
               <th>Name</th>
               <th>Camera</th>
-              <th>Schedule</th>
+              <th>Mode</th>
+              <th>Schedule / Progress</th>
               <th>Coverage</th>
               <th>Status</th>
               <th>Actions</th>
@@ -177,14 +178,34 @@
               <td class="text-gray-900 font-medium">{{ config.name }}</td>
               <td class="text-gray-700">{{ getCameraName(config.camera_id) }}</td>
               <td class="text-gray-700">
-                {{ formatDay(config.generation_day) }} {{ formatTime(config.generation_time) }}
+                <span :class="config.mode === 'prospective' ? 'badge-info' : 'badge'">
+                  {{ config.mode === 'prospective' ? 'Prospective' : 'Historical' }}
+                </span>
+              </td>
+              <td class="text-gray-700">
+                <template v-if="config.mode === 'prospective' && config.status === 'collecting'">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-24 bg-gray-200 rounded-full h-2">
+                      <div
+                        class="bg-primary-500 h-2 rounded-full"
+                        :style="{ width: config.collection_progress_percent + '%' }"
+                      ></div>
+                    </div>
+                    <span class="text-xs">
+                      Day {{ config.collection_progress_days }}/{{ config.days_to_include }}
+                    </span>
+                  </div>
+                </template>
+                <template v-else>
+                  {{ formatDay(config.generation_day) }} {{ formatTime(config.generation_time) }}
+                </template>
               </td>
               <td class="text-gray-700">
                 {{ config.days_to_include }} days, {{ config.images_per_hour }}/hr
               </td>
               <td>
-                <span :class="config.is_enabled ? 'badge-success' : 'badge'">
-                  {{ config.is_enabled ? 'Enabled' : 'Disabled' }}
+                <span :class="getConfigStatusClass(config)">
+                  {{ getConfigStatusLabel(config) }}
                 </span>
               </td>
               <td>
@@ -196,13 +217,41 @@
                   >
                     <PencilIcon class="w-4 h-4" />
                   </button>
-                  <button
-                    class="text-gray-500 hover:text-green-600"
-                    title="Trigger Now"
-                    @click="triggerConfig(config)"
-                  >
-                    <PlayIcon class="w-4 h-4" />
-                  </button>
+                  <template v-if="config.mode === 'prospective'">
+                    <button
+                      v-if="config.status === 'idle'"
+                      class="text-gray-500 hover:text-green-600"
+                      title="Start Collection"
+                      @click="startProspectiveCollection(config)"
+                    >
+                      <PlayIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      v-else-if="config.status === 'collecting'"
+                      class="text-gray-500 hover:text-red-500"
+                      title="Cancel Collection"
+                      @click="cancelProspectiveCollection(config)"
+                    >
+                      <StopIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      v-else-if="config.status === 'ready'"
+                      class="text-gray-500 hover:text-green-600"
+                      title="Generate Timelapse"
+                      @click="triggerConfig(config)"
+                    >
+                      <FilmIcon class="w-4 h-4" />
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button
+                      class="text-gray-500 hover:text-green-600"
+                      title="Trigger Now"
+                      @click="triggerConfig(config)"
+                    >
+                      <PlayIcon class="w-4 h-4" />
+                    </button>
+                  </template>
                   <button
                     class="text-gray-500 hover:text-red-500"
                     title="Delete"
@@ -215,6 +264,152 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </template>
+
+    <!-- Custom Timelapse Tab (Historical Mode) -->
+    <template v-if="activeTab === 'custom'">
+      <div class="card p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Generate Custom Timelapse</h3>
+        <p class="text-gray-500 mb-6">
+          Create a one-off timelapse from existing images. Select a date range and video settings.
+        </p>
+
+        <form @submit.prevent="generateCustomTimelapse" class="space-y-6">
+          <!-- Camera Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
+            <select
+              v-model="customForm.camera_id"
+              class="input"
+              required
+              @change="loadAvailableDates"
+            >
+              <option value="">Select a camera</option>
+              <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
+                {{ camera.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Available Dates Info -->
+          <div v-if="customForm.camera_id && availableDatesData">
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Available Images:</span>
+                <span class="font-medium">{{ availableDatesData.total_images.toLocaleString() }}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm mt-1">
+                <span class="text-gray-600">Date Range:</span>
+                <span class="font-medium" v-if="availableDatesData.oldest_date">
+                  {{ formatDate(availableDatesData.oldest_date) }} - {{ formatDate(availableDatesData.newest_date) }}
+                </span>
+                <span v-else class="text-gray-400">No images available</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Range -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <input
+                v-model="customForm.start_date"
+                type="date"
+                class="input"
+                :min="availableDatesData?.oldest_date"
+                :max="customForm.end_date || availableDatesData?.newest_date"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <input
+                v-model="customForm.end_date"
+                type="date"
+                class="input"
+                :min="customForm.start_date || availableDatesData?.oldest_date"
+                :max="availableDatesData?.newest_date"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Video Settings -->
+          <div class="border-t pt-4">
+            <h4 class="text-sm font-medium text-gray-900 mb-4">Video Settings</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Images/Hour</label>
+                <input
+                  v-model.number="customForm.images_per_hour"
+                  type="number"
+                  min="1"
+                  max="60"
+                  class="input"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Frame Rate</label>
+                <input
+                  v-model.number="customForm.frame_rate"
+                  type="number"
+                  min="1"
+                  max="120"
+                  class="input"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">CRF (Quality)</label>
+                <input
+                  v-model.number="customForm.crf"
+                  type="number"
+                  min="0"
+                  max="51"
+                  class="input"
+                  required
+                />
+                <p class="text-xs text-gray-500 mt-1">Lower = better</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pixel Format</label>
+                <select v-model="customForm.pixel_format" class="input" required>
+                  <option value="yuv420p">yuv420p</option>
+                  <option value="yuv444p">yuv444p</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estimated Output -->
+          <div v-if="customForm.start_date && customForm.end_date" class="bg-blue-50 rounded-lg p-4">
+            <div class="text-sm text-blue-800">
+              <strong>Estimated:</strong>
+              {{ estimatedFrames }} frames
+              (~{{ estimatedDuration }} at {{ customForm.frame_rate }}fps)
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="!customForm.camera_id || !customForm.start_date || !customForm.end_date || generatingCustom"
+            >
+              <template v-if="generatingCustom">
+                <div class="spinner w-4 h-4 mr-2"></div>
+                Generating...
+              </template>
+              <template v-else>
+                <PlayIcon class="w-5 h-5 mr-2" />
+                Generate Timelapse
+              </template>
+            </button>
+          </div>
+        </form>
       </div>
     </template>
 
@@ -270,6 +465,41 @@
     <!-- Config Add/Edit Modal -->
     <Modal v-model="showConfigModal" :title="editingConfig ? 'Edit Config' : 'Add Config'" size="lg">
       <form @submit.prevent="saveConfig" class="space-y-4">
+        <!-- Mode Selection -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+          <div class="flex space-x-4">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                v-model="configForm.mode"
+                value="historical"
+                class="mr-2"
+                :disabled="editingConfig && editingConfig.status === 'collecting'"
+              />
+              <span class="text-gray-700">Historical (Look Back)</span>
+            </label>
+            <label class="flex items-center">
+              <input
+                type="radio"
+                v-model="configForm.mode"
+                value="prospective"
+                class="mr-2"
+                :disabled="editingConfig && editingConfig.status === 'collecting'"
+              />
+              <span class="text-gray-700">Prospective (Collect Forward)</span>
+            </label>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            <template v-if="configForm.mode === 'historical'">
+              Generates timelapse from past images on a schedule.
+            </template>
+            <template v-else>
+              Protects images as they're captured, then generates when collection completes.
+            </template>
+          </p>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -297,29 +527,45 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Generation Day</label>
-            <select v-model="configForm.generation_day" class="input" required>
-              <option value="sunday">Sunday</option>
-              <option value="monday">Monday</option>
-              <option value="tuesday">Tuesday</option>
-              <option value="wednesday">Wednesday</option>
-              <option value="thursday">Thursday</option>
-              <option value="friday">Friday</option>
-              <option value="saturday">Saturday</option>
-            </select>
+        <!-- Historical mode: Schedule -->
+        <template v-if="configForm.mode === 'historical'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Generation Day</label>
+              <select v-model="configForm.generation_day" class="input" required>
+                <option value="sunday">Sunday</option>
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Generation Time</label>
+              <input
+                v-model="configForm.generation_time"
+                type="time"
+                class="input"
+                required
+              />
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Generation Time</label>
-            <input
-              v-model="configForm.generation_time"
-              type="time"
-              class="input"
-              required
-            />
+        </template>
+
+        <!-- Prospective mode: Auto-generate -->
+        <template v-else>
+          <div class="bg-blue-50 rounded-lg p-4">
+            <label class="flex items-center">
+              <input v-model="configForm.auto_generate" type="checkbox" class="mr-2" />
+              <span class="text-gray-700">Auto-generate when collection completes</span>
+            </label>
+            <p class="text-xs text-gray-500 mt-1">
+              Start collection from the Scheduled Configs tab after creating this config.
+            </p>
           </div>
-        </div>
+        </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -427,6 +673,7 @@ import {
   TrashIcon,
   CalendarDaysIcon,
   PencilIcon,
+  StopIcon,
 } from '@heroicons/vue/24/outline'
 
 const notifications = useNotificationsStore()
@@ -436,6 +683,7 @@ const activeTab = ref('videos')
 const tabs = [
   { id: 'videos', name: 'Videos' },
   { id: 'configs', name: 'Scheduled Configs' },
+  { id: 'custom', name: 'Custom Timelapse' },
 ]
 
 const loading = ref(false)
@@ -478,9 +726,43 @@ const defaultConfigForm = {
   frame_rate: 30,
   crf: 20,
   pixel_format: 'yuv444p',
+  mode: 'historical',
+  auto_generate: true,
 }
 
 const configForm = ref({ ...defaultConfigForm })
+
+// Custom timelapse state
+const customForm = ref({
+  camera_id: '',
+  start_date: '',
+  end_date: '',
+  images_per_hour: 2,
+  frame_rate: 30,
+  crf: 20,
+  pixel_format: 'yuv444p',
+})
+const availableDatesData = ref(null)
+const loadingDates = computed(() => multidayStore.loadingDates)
+const generatingCustom = ref(false)
+
+// Computed for custom timelapse estimates
+const estimatedFrames = computed(() => {
+  if (!customForm.value.start_date || !customForm.value.end_date) return 0
+  const start = new Date(customForm.value.start_date)
+  const end = new Date(customForm.value.end_date)
+  const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
+  return days * 24 * customForm.value.images_per_hour
+})
+
+const estimatedDuration = computed(() => {
+  const frames = estimatedFrames.value
+  if (!frames || !customForm.value.frame_rate) return '0:00'
+  const seconds = frames / customForm.value.frame_rate
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.round(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+})
 
 async function loadTimelapses() {
   loading.value = true
@@ -613,6 +895,8 @@ function openEditConfigModal(config) {
     frame_rate: config.frame_rate,
     crf: config.crf,
     pixel_format: config.pixel_format,
+    mode: config.mode || 'historical',
+    auto_generate: config.auto_generate !== false,
   }
   showConfigModal.value = true
 }
@@ -630,6 +914,8 @@ async function saveConfig() {
       frame_rate: configForm.value.frame_rate,
       crf: configForm.value.crf,
       pixel_format: configForm.value.pixel_format,
+      mode: configForm.value.mode,
+      auto_generate: configForm.value.auto_generate,
     })
     if (result.success) {
       notifications.success('Saved', 'Configuration updated')
@@ -650,6 +936,8 @@ async function saveConfig() {
       frame_rate: configForm.value.frame_rate,
       crf: configForm.value.crf,
       pixel_format: configForm.value.pixel_format,
+      mode: configForm.value.mode,
+      auto_generate: configForm.value.auto_generate,
     })
     if (result.success) {
       notifications.success('Created', 'Configuration created')
@@ -682,6 +970,117 @@ async function triggerConfig(config) {
   } else {
     notifications.error('Error', result.error)
   }
+}
+
+// Custom timelapse functions
+async function loadAvailableDates() {
+  if (!customForm.value.camera_id) {
+    availableDatesData.value = null
+    return
+  }
+  const result = await multidayStore.getAvailableDates(customForm.value.camera_id)
+  if (result.success) {
+    availableDatesData.value = result.data
+    // Set default dates if available
+    if (result.data.oldest_date && result.data.newest_date) {
+      customForm.value.end_date = result.data.newest_date
+      // Default to 7 days back from newest, or oldest if less than 7 days
+      const newest = new Date(result.data.newest_date)
+      const oldest = new Date(result.data.oldest_date)
+      const sevenDaysAgo = new Date(newest)
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+      customForm.value.start_date = sevenDaysAgo < oldest
+        ? result.data.oldest_date
+        : sevenDaysAgo.toISOString().split('T')[0]
+    }
+  }
+}
+
+async function generateCustomTimelapse() {
+  generatingCustom.value = true
+  try {
+    const result = await multidayStore.generateHistorical({
+      camera_id: customForm.value.camera_id,
+      start_date: customForm.value.start_date,
+      end_date: customForm.value.end_date,
+      images_per_hour: customForm.value.images_per_hour,
+      frame_rate: customForm.value.frame_rate,
+      crf: customForm.value.crf,
+      pixel_format: customForm.value.pixel_format,
+    })
+    if (result.success) {
+      notifications.success('Started', result.result.message)
+      // Switch to videos tab to see the progress
+      activeTab.value = 'videos'
+      await loadTimelapses()
+    } else {
+      notifications.error('Error', result.error)
+    }
+  } finally {
+    generatingCustom.value = false
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  try {
+    return format(new Date(dateStr), 'MMM d, yyyy')
+  } catch {
+    return dateStr
+  }
+}
+
+// Prospective collection functions
+async function startProspectiveCollection(config) {
+  const result = await multidayStore.startCollection(config.id, config.days_to_include)
+  if (result.success) {
+    notifications.success('Started', `Collecting images for ${config.days_to_include} days`)
+    await multidayStore.fetchConfigs()
+  } else {
+    notifications.error('Error', result.error)
+  }
+}
+
+async function cancelProspectiveCollection(config) {
+  if (!confirm('Cancel collection? You can optionally unprotect collected images.')) {
+    return
+  }
+  const unprotect = confirm('Also unprotect collected images? (Cancel = keep protected)')
+  const result = await multidayStore.cancelCollection(config.id, unprotect)
+  if (result.success) {
+    notifications.success('Cancelled', result.result.message)
+    await multidayStore.fetchConfigs()
+  } else {
+    notifications.error('Error', result.error)
+  }
+}
+
+function getConfigStatusClass(config) {
+  if (config.mode === 'prospective') {
+    const statusClasses = {
+      idle: 'badge',
+      collecting: 'badge-info',
+      ready: 'badge-success',
+      completed: 'badge-success',
+      failed: 'badge-danger',
+    }
+    return statusClasses[config.status] || 'badge'
+  }
+  return config.is_enabled ? 'badge-success' : 'badge'
+}
+
+function getConfigStatusLabel(config) {
+  if (config.mode === 'prospective') {
+    const labels = {
+      idle: 'Idle',
+      collecting: 'Collecting',
+      ready: 'Ready',
+      completed: 'Completed',
+      failed: 'Failed',
+    }
+    return labels[config.status] || config.status
+  }
+  return config.is_enabled ? 'Enabled' : 'Disabled'
 }
 
 watch(filters, loadTimelapses, { deep: true })

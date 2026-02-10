@@ -12,7 +12,7 @@ import os
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse
-from sqlalchemy import func, select
+from sqlalchemy import Integer, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import get_current_user
@@ -25,6 +25,10 @@ from api.schemas.image import (
     ImageListResponse,
     ImageProtectRequest,
     ImageResponse,
+)
+from api.schemas.timelapse import (
+    AvailableDatesResponse,
+    DateImageCount,
 )
 
 router = APIRouter(prefix="/images", tags=["Images"])
@@ -186,6 +190,74 @@ async def delete_image(
 
     await db.delete(image)
     await db.commit()
+
+
+@router.get("/camera/{camera_id}/available-dates", response_model=AvailableDatesResponse)
+async def get_available_dates(
+    camera_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> AvailableDatesResponse:
+    """
+    Get available dates with image counts for a camera.
+    Used for historical timelapse date selection.
+    """
+    # Verify camera exists
+    result = await db.execute(
+        select(Camera).where(Camera.id == camera_id)
+    )
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Camera not found",
+        )
+
+    # Get dates with image counts (grouped by date)
+    date_counts_query = (
+        select(
+            func.date(Image.captured_at).label("capture_date"),
+            func.count(Image.id).label("image_count"),
+            func.sum(
+                func.cast(Image.is_protected, Integer)
+            ).label("protected_count"),
+        )
+        .where(Image.camera_id == camera_id)
+        .group_by(func.date(Image.captured_at))
+        .order_by(func.date(Image.captured_at).desc())
+    )
+
+    result = await db.execute(date_counts_query)
+    rows = result.all()
+
+    dates = []
+    total_images = 0
+    oldest_date = None
+    newest_date = None
+
+    for row in rows:
+        capture_date = row.capture_date
+        image_count = row.image_count
+        protected_count = row.protected_count or 0
+
+        dates.append(DateImageCount(
+            date=capture_date,
+            image_count=image_count,
+            protected_count=protected_count,
+        ))
+
+        total_images += image_count
+
+        if oldest_date is None or capture_date < oldest_date:
+            oldest_date = capture_date
+        if newest_date is None or capture_date > newest_date:
+            newest_date = capture_date
+
+    return AvailableDatesResponse(
+        dates=dates,
+        oldest_date=oldest_date,
+        newest_date=newest_date,
+        total_images=total_images,
+    )
 
 
 @router.get("/camera/{camera_id}", response_model=ImageListResponse)
