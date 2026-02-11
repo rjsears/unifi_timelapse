@@ -7,7 +7,7 @@ Supports two modes:
 - Prospective: Collect images over time, then generate
 """
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status

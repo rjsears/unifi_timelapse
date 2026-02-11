@@ -12,7 +12,7 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.config import get_settings
@@ -21,7 +21,7 @@ from api.models.image import Image
 from api.models.multiday_config import MultidayConfig
 from api.services.storage import StorageService
 
-logger = logging.getLogger(__name)
+logger = logging.getLogger(__name__)
 
 
 class MultidayTimelapseService:
@@ -182,8 +182,6 @@ class MultidayTimelapseService:
         Returns:
             Number of protected images
         """
-        from sqlalchemy import func
-
         query = select(func.count(Image.id)).where(Image.is_protected == True)
         if camera_id:
             query = query.where(Image.camera_id == camera_id)
