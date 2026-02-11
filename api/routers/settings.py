@@ -7,7 +7,7 @@ Global settings management.
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,7 +55,7 @@ async def list_settings(
 
 @router.put("", response_model=SettingsListResponse)
 async def bulk_update_settings(
-    updates: dict[str, Any],
+    updates: dict[str, Any] = Body(...),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ) -> SettingsListResponse:

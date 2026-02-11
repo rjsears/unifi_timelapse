@@ -420,8 +420,13 @@ function formatBytes(bytes) {
 async function loadSettings() {
   try {
     const response = await api.get('/settings')
+    // Convert settings array to key-value object
+    const settingsObj = {}
+    for (const setting of response.data.settings || []) {
+      settingsObj[setting.key] = setting.value
+    }
     // Merge loaded settings with defaults
-    settings.value = { ...settings.value, ...response.data }
+    settings.value = { ...settings.value, ...settingsObj }
   } catch (error) {
     console.error('Failed to load settings:', error)
   }
