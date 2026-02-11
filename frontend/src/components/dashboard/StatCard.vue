@@ -5,9 +5,9 @@
         <component :is="iconComponent" :class="['w-6 h-6', iconColorClass]" />
       </div>
       <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">{{ title }}</p>
-        <p class="text-2xl font-bold text-gray-900">{{ value }}</p>
-        <p v-if="subtitle" class="text-xs text-gray-400">{{ subtitle }}</p>
+        <p class="text-sm font-medium" style="color: var(--color-text-muted);">{{ title }}</p>
+        <p class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ value }}</p>
+        <p v-if="subtitle" class="text-xs" style="color: var(--color-text-muted);">{{ subtitle }}</p>
       </div>
     </div>
   </div>

@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Timelapses</h1>
-        <p class="text-gray-500">View and manage timelapse videos</p>
+        <h1 class="text-2xl font-bold" style="color: var(--color-text-primary);">Timelapses</h1>
+        <p style="color: var(--color-text-muted);">View and manage timelapse videos</p>
       </div>
       <button
         v-if="activeTab === 'videos'"
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b" style="border-color: var(--color-border);">
       <nav class="flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -33,9 +33,10 @@
           :class="[
             'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
             activeTab === tab.id
-              ? 'border-primary-500 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300',
+              ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+              : 'border-transparent hover:border-gray-300 dark:hover:border-slate-600',
           ]"
+          :style="activeTab !== tab.id ? { color: 'var(--color-text-secondary)' } : {}"
           @click="activeTab = tab.id"
         >
           {{ tab.name }}
@@ -75,18 +76,19 @@
           <div class="spinner w-8 h-8"></div>
         </div>
         <div v-else-if="timelapses.length === 0" class="text-center py-12">
-          <FilmIcon class="w-12 h-12 mx-auto text-gray-400" />
-          <h3 class="mt-4 text-lg font-medium text-gray-900">No timelapses found</h3>
-          <p class="mt-2 text-gray-500">Timelapses will appear here once generated.</p>
+          <FilmIcon class="w-12 h-12 mx-auto" style="color: var(--color-text-muted);" />
+          <h3 class="mt-4 text-lg font-medium" style="color: var(--color-text-primary);">No timelapses found</h3>
+          <p class="mt-2" style="color: var(--color-text-muted);">Timelapses will appear here once generated.</p>
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           <div
             v-for="timelapse in timelapses"
             :key="timelapse.id"
-            class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
+            class="rounded-lg border overflow-hidden shadow-sm"
+            style="background-color: var(--color-surface); border-color: var(--color-border);"
           >
             <!-- Thumbnail -->
-            <div class="aspect-video bg-gray-100 relative">
+            <div class="aspect-video relative" style="background-color: var(--color-bg-secondary);">
               <img
                 v-if="timelapse.status === 'completed'"
                 :src="`/api/timelapses/${timelapse.id}/thumbnail`"
@@ -111,13 +113,13 @@
             <!-- Info -->
             <div class="p-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="font-medium text-gray-900">{{ timelapse.camera_name }}</h3>
+                <h3 class="font-medium" style="color: var(--color-text-primary);">{{ timelapse.camera_name }}</h3>
                 <span :class="statusClass(timelapse.status)">{{ timelapse.status }}</span>
               </div>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm" style="color: var(--color-text-muted);">
                 {{ formatDateRange(timelapse) }}
               </p>
-              <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs text-gray-400">
+              <div v-if="timelapse.status === 'completed'" class="mt-2 text-xs" style="color: var(--color-text-muted);">
                 {{ timelapse.frame_count }} frames • {{ formatDuration(timelapse.duration_seconds) }}
               </div>
               <div v-if="timelapse.status === 'failed'" class="mt-2 text-xs text-red-500">
@@ -153,9 +155,9 @@
           <div class="spinner w-8 h-8"></div>
         </div>
         <div v-else-if="multidayConfigs.length === 0" class="text-center py-12">
-          <CalendarDaysIcon class="w-12 h-12 mx-auto text-gray-400" />
-          <h3 class="mt-4 text-lg font-medium text-gray-900">No scheduled configs</h3>
-          <p class="mt-2 text-gray-500">Create a configuration to schedule multi-day timelapses.</p>
+          <CalendarDaysIcon class="w-12 h-12 mx-auto" style="color: var(--color-text-muted);" />
+          <h3 class="mt-4 text-lg font-medium" style="color: var(--color-text-primary);">No scheduled configs</h3>
+          <p class="mt-2" style="color: var(--color-text-muted);">Create a configuration to schedule multi-day timelapses.</p>
           <button class="btn-primary mt-4" @click="openAddConfigModal">
             <PlusIcon class="w-5 h-5 mr-2" />
             Add Config
@@ -175,17 +177,17 @@
           </thead>
           <tbody>
             <tr v-for="config in multidayConfigs" :key="config.id">
-              <td class="text-gray-900 font-medium">{{ config.name }}</td>
-              <td class="text-gray-700">{{ getCameraName(config.camera_id) }}</td>
-              <td class="text-gray-700">
+              <td class="font-medium" style="color: var(--color-text-primary);">{{ config.name }}</td>
+              <td style="color: var(--color-text-secondary);">{{ getCameraName(config.camera_id) }}</td>
+              <td style="color: var(--color-text-secondary);">
                 <span :class="config.mode === 'prospective' ? 'badge-info' : 'badge'">
                   {{ config.mode === 'prospective' ? 'Prospective' : 'Historical' }}
                 </span>
               </td>
-              <td class="text-gray-700">
+              <td style="color: var(--color-text-secondary);">
                 <template v-if="config.mode === 'prospective' && config.status === 'collecting'">
                   <div class="flex items-center space-x-2">
-                    <div class="w-24 bg-gray-200 rounded-full h-2">
+                    <div class="w-24 rounded-full h-2" style="background-color: var(--color-bg-secondary);">
                       <div
                         class="bg-primary-500 h-2 rounded-full"
                         :style="{ width: config.collection_progress_percent + '%' }"
@@ -200,7 +202,7 @@
                   {{ formatDay(config.generation_day) }} {{ formatTime(config.generation_time) }}
                 </template>
               </td>
-              <td class="text-gray-700">
+              <td style="color: var(--color-text-secondary);">
                 {{ config.days_to_include }} days, {{ config.images_per_hour }}/hr
               </td>
               <td>
@@ -211,7 +213,7 @@
               <td>
                 <div class="flex items-center space-x-2">
                   <button
-                    class="text-gray-500 hover:text-primary-600"
+                    class="hover:text-primary-600" style="color: var(--color-text-muted);"
                     title="Edit"
                     @click="openEditConfigModal(config)"
                   >
@@ -220,7 +222,7 @@
                   <template v-if="config.mode === 'prospective'">
                     <button
                       v-if="config.status === 'idle'"
-                      class="text-gray-500 hover:text-green-600"
+                      class="hover:text-green-600" style="color: var(--color-text-muted);"
                       title="Start Collection"
                       @click="startProspectiveCollection(config)"
                     >
@@ -228,7 +230,7 @@
                     </button>
                     <button
                       v-else-if="config.status === 'collecting'"
-                      class="text-gray-500 hover:text-red-500"
+                      class="hover:text-red-500" style="color: var(--color-text-muted);"
                       title="Cancel Collection"
                       @click="cancelProspectiveCollection(config)"
                     >
@@ -236,7 +238,7 @@
                     </button>
                     <button
                       v-else-if="config.status === 'ready'"
-                      class="text-gray-500 hover:text-green-600"
+                      class="hover:text-green-600" style="color: var(--color-text-muted);"
                       title="Generate Timelapse"
                       @click="triggerConfig(config)"
                     >
@@ -245,7 +247,7 @@
                   </template>
                   <template v-else>
                     <button
-                      class="text-gray-500 hover:text-green-600"
+                      class="hover:text-green-600" style="color: var(--color-text-muted);"
                       title="Trigger Now"
                       @click="triggerConfig(config)"
                     >
@@ -253,7 +255,7 @@
                     </button>
                   </template>
                   <button
-                    class="text-gray-500 hover:text-red-500"
+                    class="hover:text-red-500" style="color: var(--color-text-muted);"
                     title="Delete"
                     @click="confirmDeleteConfig(config)"
                   >
@@ -270,15 +272,15 @@
     <!-- Custom Timelapse Tab (Historical Mode) -->
     <template v-if="activeTab === 'custom'">
       <div class="card p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Generate Custom Timelapse</h3>
-        <p class="text-gray-500 mb-6">
+        <h3 class="text-lg font-medium mb-4" style="color: var(--color-text-primary);">Generate Custom Timelapse</h3>
+        <p class="mb-6" style="color: var(--color-text-muted);">
           Create a one-off timelapse from existing images. Select a date range and video settings.
         </p>
 
         <form @submit.prevent="generateCustomTimelapse" class="space-y-6">
           <!-- Camera Selection -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Camera</label>
             <select
               v-model="customForm.camera_id"
               class="input"
@@ -294,17 +296,17 @@
 
           <!-- Available Dates Info -->
           <div v-if="customForm.camera_id && availableDatesData">
-            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="rounded-lg p-4 mb-4" style="background-color: var(--color-bg-secondary);">
               <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-600">Available Images:</span>
-                <span class="font-medium">{{ availableDatesData.total_images.toLocaleString() }}</span>
+                <span style="color: var(--color-text-secondary);">Available Images:</span>
+                <span class="font-medium" style="color: var(--color-text-primary);">{{ availableDatesData.total_images.toLocaleString() }}</span>
               </div>
               <div class="flex items-center justify-between text-sm mt-1">
-                <span class="text-gray-600">Date Range:</span>
-                <span class="font-medium" v-if="availableDatesData.oldest_date">
+                <span style="color: var(--color-text-secondary);">Date Range:</span>
+                <span class="font-medium" v-if="availableDatesData.oldest_date" style="color: var(--color-text-primary);">
                   {{ formatDate(availableDatesData.oldest_date) }} - {{ formatDate(availableDatesData.newest_date) }}
                 </span>
-                <span v-else class="text-gray-400">No images available</span>
+                <span v-else style="color: var(--color-text-muted);">No images available</span>
               </div>
             </div>
           </div>
@@ -312,7 +314,7 @@
           <!-- Date Range -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Start Date</label>
               <input
                 v-model="customForm.start_date"
                 type="date"
@@ -323,7 +325,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">End Date</label>
               <input
                 v-model="customForm.end_date"
                 type="date"
@@ -336,11 +338,11 @@
           </div>
 
           <!-- Video Settings -->
-          <div class="border-t pt-4">
-            <h4 class="text-sm font-medium text-gray-900 mb-4">Video Settings</h4>
+          <div class="border-t pt-4" style="border-color: var(--color-border);">
+            <h4 class="text-sm font-medium mb-4" style="color: var(--color-text-primary);">Video Settings</h4>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Images/Hour</label>
+                <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Images/Hour</label>
                 <input
                   v-model.number="customForm.images_per_hour"
                   type="number"
@@ -351,7 +353,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Frame Rate</label>
+                <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Frame Rate</label>
                 <input
                   v-model.number="customForm.frame_rate"
                   type="number"
@@ -362,7 +364,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">CRF (Quality)</label>
+                <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">CRF (Quality)</label>
                 <input
                   v-model.number="customForm.crf"
                   type="number"
@@ -371,10 +373,10 @@
                   class="input"
                   required
                 />
-                <p class="text-xs text-gray-500 mt-1">Lower = better</p>
+                <p class="text-xs mt-1" style="color: var(--color-text-muted);">Lower = better</p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Pixel Format</label>
+                <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Pixel Format</label>
                 <select v-model="customForm.pixel_format" class="input" required>
                   <option value="yuv420p">yuv420p</option>
                   <option value="yuv444p">yuv444p</option>
@@ -417,7 +419,7 @@
     <Modal v-model="showGenerateModal" title="Generate Timelapse" size="md">
       <form @submit.prevent="generateTimelapse" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Camera</label>
           <select v-model="generateForm.camera_id" class="input" required>
             <option value="">Select a camera</option>
             <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
@@ -426,7 +428,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Date</label>
           <input v-model="generateForm.date" type="date" class="input" required />
         </div>
         <div class="flex justify-end space-x-3 pt-4">
@@ -453,7 +455,7 @@
 
     <!-- Delete confirmation -->
     <Modal v-model="showDeleteModal" title="Delete Timelapse" size="sm">
-      <p class="text-gray-700">
+      <p style="color: var(--color-text-secondary);">
         Are you sure you want to delete this timelapse?
       </p>
       <div class="flex justify-end space-x-3 pt-6">
@@ -477,7 +479,7 @@
                 class="mr-2"
                 :disabled="editingConfig && editingConfig.status === 'collecting'"
               />
-              <span class="text-gray-700">Historical (Look Back)</span>
+              <span style="color: var(--color-text-secondary);">Historical (Look Back)</span>
             </label>
             <label class="flex items-center">
               <input
@@ -487,10 +489,10 @@
                 class="mr-2"
                 :disabled="editingConfig && editingConfig.status === 'collecting'"
               />
-              <span class="text-gray-700">Prospective (Collect Forward)</span>
+              <span style="color: var(--color-text-secondary);">Prospective (Collect Forward)</span>
             </label>
           </div>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">
             <template v-if="configForm.mode === 'historical'">
               Generates timelapse from past images on a schedule.
             </template>
@@ -502,7 +504,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Name</label>
             <input
               v-model="configForm.name"
               type="text"
@@ -512,7 +514,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Camera</label>
             <select
               v-model="configForm.camera_id"
               class="input"
@@ -531,7 +533,7 @@
         <template v-if="configForm.mode === 'historical'">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Generation Day</label>
+              <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Generation Day</label>
               <select v-model="configForm.generation_day" class="input" required>
                 <option value="sunday">Sunday</option>
                 <option value="monday">Monday</option>
@@ -543,7 +545,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Generation Time</label>
+              <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Generation Time</label>
               <input
                 v-model="configForm.generation_time"
                 type="time"
@@ -559,9 +561,9 @@
           <div class="bg-blue-50 rounded-lg p-4">
             <label class="flex items-center">
               <input v-model="configForm.auto_generate" type="checkbox" class="mr-2" />
-              <span class="text-gray-700">Auto-generate when collection completes</span>
+              <span style="color: var(--color-text-secondary);">Auto-generate when collection completes</span>
             </label>
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs mt-1" style="color: var(--color-text-muted);">
               Start collection from the Scheduled Configs tab after creating this config.
             </p>
           </div>
@@ -569,7 +571,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Days to Include</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Days to Include</label>
             <input
               v-model.number="configForm.days_to_include"
               type="number"
@@ -580,7 +582,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Images per Hour</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Images per Hour</label>
             <input
               v-model.number="configForm.images_per_hour"
               type="number"
@@ -594,7 +596,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Frame Rate</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Frame Rate</label>
             <input
               v-model.number="configForm.frame_rate"
               type="number"
@@ -605,7 +607,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">CRF (Quality)</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">CRF (Quality)</label>
             <input
               v-model.number="configForm.crf"
               type="number"
@@ -614,10 +616,10 @@
               class="input"
               required
             />
-            <p class="mt-1 text-xs text-gray-500">Lower = better quality</p>
+            <p class="mt-1 text-xs" style="color: var(--color-text-muted);">Lower = better quality</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Pixel Format</label>
+            <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">Pixel Format</label>
             <select v-model="configForm.pixel_format" class="input" required>
               <option value="yuv420p">yuv420p (Recommended)</option>
               <option value="yuv444p">yuv444p (High Quality)</option>
@@ -629,7 +631,7 @@
         <div class="flex items-center">
           <label class="flex items-center">
             <input v-model="configForm.is_enabled" type="checkbox" class="mr-2" />
-            <span class="text-gray-700">Enabled</span>
+            <span style="color: var(--color-text-secondary);">Enabled</span>
           </label>
         </div>
 
@@ -646,7 +648,7 @@
 
     <!-- Config Delete Confirmation -->
     <Modal v-model="showDeleteConfigModal" title="Delete Configuration" size="sm">
-      <p class="text-gray-700">
+      <p style="color: var(--color-text-secondary);">
         Are you sure you want to delete the configuration "{{ configToDelete?.name }}"?
       </p>
       <div class="flex justify-end space-x-3 pt-6">

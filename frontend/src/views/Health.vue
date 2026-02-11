@@ -2,26 +2,26 @@
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Camera Health</h1>
-      <p class="text-gray-500 dark:text-gray-400">Monitor camera connectivity and health status</p>
+      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary);">Camera Health</h1>
+      <p style="color: var(--color-text-muted);">Monitor camera connectivity and health status</p>
     </div>
 
     <!-- Overview cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="card p-4">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Total Cameras</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ cameras.length }}</p>
+        <p class="text-sm" style="color: var(--color-text-muted);">Total Cameras</p>
+        <p class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ cameras.length }}</p>
       </div>
       <div class="card p-4">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Online</p>
+        <p class="text-sm" style="color: var(--color-text-muted);">Online</p>
         <p class="text-2xl font-bold text-green-500">{{ onlineCameras }}</p>
       </div>
       <div class="card p-4">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Warning</p>
+        <p class="text-sm" style="color: var(--color-text-muted);">Warning</p>
         <p class="text-2xl font-bold text-yellow-500">{{ warningCameras }}</p>
       </div>
       <div class="card p-4">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Offline</p>
+        <p class="text-sm" style="color: var(--color-text-muted);">Offline</p>
         <p class="text-2xl font-bold text-red-500">{{ offlineCameras }}</p>
       </div>
     </div>
@@ -63,9 +63,9 @@
                   {{ getStatusText(camera) }}
                 </span>
               </td>
-              <td class="text-gray-700 dark:text-gray-300">
+              <td style="color: var(--color-text-secondary);">
                 <div class="flex items-center">
-                  <div class="w-24 bg-gray-200 dark:bg-dark-700 rounded-full h-2 mr-2">
+                  <div class="w-24 rounded-full h-2 mr-2" style="background-color: var(--color-bg-secondary);">
                     <div
                       class="h-2 rounded-full"
                       :class="getUptimeClass(camera.uptime)"
@@ -75,10 +75,10 @@
                   {{ (camera.uptime || 0).toFixed(1) }}%
                 </div>
               </td>
-              <td class="text-gray-700 dark:text-gray-300">
+              <td style="color: var(--color-text-secondary);">
                 {{ camera.avg_response ? `${camera.avg_response}ms` : '-' }}
               </td>
-              <td class="text-gray-700 dark:text-gray-300">
+              <td style="color: var(--color-text-secondary);">
                 {{ camera.last_check ? formatTime(camera.last_check) : 'Never' }}
               </td>
               <td>
@@ -97,7 +97,7 @@
                   >
                     Frozen
                   </span>
-                  <span v-if="!camera.is_blank && !camera.is_frozen" class="text-gray-400 dark:text-gray-500">
+                  <span v-if="!camera.is_blank && !camera.is_frozen" style="color: var(--color-text-muted);">
                     None
                   </span>
                 </div>
@@ -115,7 +115,7 @@
       :icon="ChartBarIcon"
       icon-color="blue"
     >
-      <div class="h-64 bg-gray-50 dark:bg-dark-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400">
+      <div class="h-64 rounded-lg flex items-center justify-center" style="background-color: var(--color-bg-secondary); color: var(--color-text-muted);">
         <div class="text-center">
           <ChartBarIcon class="w-12 h-12 mx-auto mb-2 opacity-50" />
           <p>Health timeline visualization</p>
@@ -131,11 +131,11 @@
       :icon="ExclamationTriangleIcon"
       icon-color="yellow"
     >
-      <div v-if="alerts.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+      <div v-if="alerts.length === 0" class="py-8 text-center" style="color: var(--color-text-muted);">
         <BellSlashIcon class="w-12 h-12 mx-auto mb-2 opacity-50" />
         <p>No recent alerts</p>
       </div>
-      <ul v-else class="divide-y divide-gray-200 dark:divide-dark-700">
+      <ul v-else class="divide-y" style="border-color: var(--color-border);">
         <li v-for="alert in alerts" :key="alert.id" class="py-4 flex items-center justify-between">
           <div class="flex items-center">
             <ExclamationTriangleIcon
@@ -143,11 +143,11 @@
               :class="alert.type === 'error' ? 'text-red-500' : 'text-yellow-500'"
             />
             <div>
-              <p class="text-gray-900 dark:text-white">{{ alert.message }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ alert.camera_name }}</p>
+              <p style="color: var(--color-text-primary);">{{ alert.message }}</p>
+              <p class="text-xs" style="color: var(--color-text-muted);">{{ alert.camera_name }}</p>
             </div>
           </div>
-          <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatTime(alert.created_at) }}</span>
+          <span class="text-sm" style="color: var(--color-text-muted);">{{ formatTime(alert.created_at) }}</span>
         </li>
       </ul>
     </CollapsibleCard>
