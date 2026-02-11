@@ -2,16 +2,21 @@
 Multi-Day Configuration Model
 
 Configuration for multi-day timelapse generation.
+Supports two modes:
+- Historical: Build timelapse from existing images
+- Prospective: Collect images over time, then generate
 """
 
 import uuid
-from datetime import datetime, time
-from typing import TYPE_CHECKING
+from datetime import date, datetime, time
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Date,
     ForeignKey,
+    Index,
     Integer,
     String,
     Time,
@@ -57,6 +62,50 @@ class MultidayConfig(Base):
         nullable=False,
         default=True,
         comment="Whether this configuration is enabled",
+    )
+
+    # Mode: historical (build from existing) or prospective (collect forward)
+    mode: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="historical",
+        comment="Mode: 'historical' or 'prospective'",
+    )
+
+    # Status for tracking collection progress
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="idle",
+        comment="Status: 'idle', 'collecting', 'ready', 'completed', 'failed'",
+    )
+
+    # Prospective collection tracking
+    collection_start_date: Mapped[Optional[date]] = mapped_column(
+        Date,
+        nullable=True,
+        comment="When prospective collection started",
+    )
+    collection_end_date: Mapped[Optional[date]] = mapped_column(
+        Date,
+        nullable=True,
+        comment="When prospective collection ends",
+    )
+    collection_progress_days: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        comment="Days collected so far for prospective mode",
+    )
+    last_generation_at: Mapped[Optional[datetime]] = mapped_column(
+        nullable=True,
+        comment="Last time timelapse was generated",
+    )
+    auto_generate: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        comment="Auto-generate when collection completes (prospective mode)",
     )
 
     # Image selection
@@ -124,7 +173,7 @@ class MultidayConfig(Base):
         back_populates="multiday_configs",
     )
 
-    # Constraints
+    # Constraints and indexes
     __table_args__ = (
         CheckConstraint(
             "images_per_hour >= 1 AND images_per_hour <= 60",
@@ -142,6 +191,20 @@ class MultidayConfig(Base):
             "frame_rate >= 1 AND frame_rate <= 120",
             name="ck_multiday_frame_rate",
         ),
+        CheckConstraint(
+            "mode IN ('historical', 'prospective')",
+            name="ck_multiday_mode",
+        ),
+        CheckConstraint(
+            "status IN ('idle', 'collecting', 'ready', 'completed', 'failed')",
+            name="ck_multiday_status",
+        ),
+        Index("ix_multiday_configs_status", "status"),
+        Index(
+            "idx_multiday_configs_collection_dates",
+            "collection_start_date",
+            "collection_end_date",
+        ),
     )
 
     @property
@@ -154,5 +217,17 @@ class MultidayConfig(Base):
         """Calculate expected video duration in seconds."""
         return self.expected_frame_count / self.frame_rate
 
+    @property
+    def is_collecting(self) -> bool:
+        """Check if this config is actively collecting images."""
+        return self.mode == "prospective" and self.status == "collecting"
+
+    @property
+    def collection_progress_percent(self) -> float:
+        """Get collection progress as percentage."""
+        if self.days_to_include <= 0:
+            return 0.0
+        return min(100.0, (self.collection_progress_days / self.days_to_include) * 100)
+
     def __repr__(self) -> str:
-        return f"<MultidayConfig(name='{self.name}', camera_id={self.camera_id})>"
+        return f"<MultidayConfig(name='{self.name}', mode='{self.mode}', status='{self.status}')>"

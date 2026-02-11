@@ -16,6 +16,7 @@ from api.database import Base
 
 if TYPE_CHECKING:
     from api.models.camera import Camera
+    from api.models.multiday_config import MultidayConfig
     from api.models.timelapse import Timelapse
 
 
@@ -88,6 +89,15 @@ class Image(Base):
         comment="Timelapse this image was used in",
     )
 
+    # Prospective collection protection
+    protected_by_config_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("multiday_configs.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Multiday config that protected this image for prospective collection",
+    )
+
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
         nullable=False,
@@ -103,6 +113,10 @@ class Image(Base):
         "Timelapse",
         back_populates="images",
         foreign_keys=[included_in_timelapse_id],
+    )
+    protected_by_config: Mapped[Optional["MultidayConfig"]] = relationship(
+        "MultidayConfig",
+        foreign_keys=[protected_by_config_id],
     )
 
     # Indexes for common queries

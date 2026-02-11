@@ -2,13 +2,17 @@
 Multi-day Timelapse Service
 
 API-accessible service for multi-day timelapse operations.
+Supports two modes:
+- Historical: Build timelapse from existing images
+- Prospective: Collect images over time, then generate
 """
 
 import logging
 from datetime import date, datetime, timedelta
 from typing import List, Optional
+from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.config import get_settings
@@ -178,8 +182,6 @@ class MultidayTimelapseService:
         Returns:
             Number of protected images
         """
-        from sqlalchemy import func
-
         query = select(func.count(Image.id)).where(Image.is_protected == True)
         if camera_id:
             query = query.where(Image.camera_id == camera_id)
@@ -223,3 +225,192 @@ class MultidayTimelapseService:
             "crf": config.crf,
             "pixel_format": config.pixel_format,
         }
+
+    # ============ Prospective Collection Methods ============
+
+    async def get_active_prospective_configs(
+        self,
+        camera_id: Optional[UUID] = None,
+    ) -> List[MultidayConfig]:
+        """
+        Get configs that are actively collecting images.
+
+        Args:
+            camera_id: Optional camera to filter by
+
+        Returns:
+            List of actively collecting configs
+        """
+        query = select(MultidayConfig).where(
+            MultidayConfig.mode == "prospective",
+            MultidayConfig.status == "collecting",
+        )
+        if camera_id:
+            query = query.where(MultidayConfig.camera_id == camera_id)
+
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def protect_image_for_config(
+        self,
+        image: Image,
+        config_id: UUID,
+    ) -> bool:
+        """
+        Protect an image for prospective collection.
+
+        Args:
+            image: Image to protect
+            config_id: Config that is protecting this image
+
+        Returns:
+            True if image was protected, False if already protected
+        """
+        if image.protected_by_config_id == config_id:
+            return False
+
+        image.is_protected = True
+        image.protection_reason = "prospective"
+        image.protected_by_config_id = config_id
+
+        await self.db.commit()
+        return True
+
+    async def protect_images_for_prospective(
+        self,
+        camera_id: UUID,
+        captured_date: date,
+    ) -> int:
+        """
+        Protect images for all active prospective collections on this camera.
+        Called after each image capture.
+
+        Args:
+            camera_id: Camera the image was captured from
+            captured_date: Date of capture
+
+        Returns:
+            Number of images protected
+        """
+        # Get active prospective configs for this camera
+        configs = await self.get_active_prospective_configs(camera_id)
+
+        if not configs:
+            return 0
+
+        protected_count = 0
+        for config in configs:
+            # Check if capture date is within collection period
+            if config.collection_start_date and config.collection_end_date:
+                if config.collection_start_date <= captured_date <= config.collection_end_date:
+                    # Protect all unprotected images from this camera on this date
+                    start_dt = datetime.combine(captured_date, datetime.min.time())
+                    end_dt = datetime.combine(captured_date, datetime.max.time())
+
+                    result = await self.db.execute(
+                        select(Image).where(
+                            Image.camera_id == camera_id,
+                            Image.captured_at >= start_dt,
+                            Image.captured_at <= end_dt,
+                            Image.protected_by_config_id.is_(None),
+                        )
+                    )
+                    images = result.scalars().all()
+
+                    for image in images:
+                        image.is_protected = True
+                        image.protection_reason = "prospective"
+                        image.protected_by_config_id = config.id
+                        protected_count += 1
+
+        if protected_count > 0:
+            await self.db.commit()
+            logger.info(f"Protected {protected_count} images for prospective collection")
+
+        return protected_count
+
+    async def update_collection_progress(self, config: MultidayConfig) -> None:
+        """
+        Update collection progress for a prospective config.
+
+        Args:
+            config: Config to update
+        """
+        if config.collection_start_date is None:
+            return
+
+        today = date.today()
+        days_collected = (today - config.collection_start_date).days + 1
+        config.collection_progress_days = min(days_collected, config.days_to_include)
+
+        # Check if collection is complete
+        if config.collection_end_date and today > config.collection_end_date:
+            config.status = "ready"
+            logger.info(
+                f"Prospective collection complete for config {config.id}, "
+                f"collected {config.collection_progress_days} days"
+            )
+
+        await self.db.commit()
+
+    async def check_completed_collections(self) -> List[MultidayConfig]:
+        """
+        Check for completed prospective collections and mark them ready.
+
+        Returns:
+            List of configs that are newly ready
+        """
+        today = date.today()
+
+        result = await self.db.execute(
+            select(MultidayConfig).where(
+                MultidayConfig.mode == "prospective",
+                MultidayConfig.status == "collecting",
+                MultidayConfig.collection_end_date < today,
+            )
+        )
+        configs = result.scalars().all()
+
+        ready_configs = []
+        for config in configs:
+            config.status = "ready"
+            config.collection_progress_days = config.days_to_include
+            ready_configs.append(config)
+            logger.info(f"Marked config {config.id} as ready for generation")
+
+        if ready_configs:
+            await self.db.commit()
+
+        return ready_configs
+
+    async def get_images_for_prospective_config(
+        self,
+        config: MultidayConfig,
+    ) -> List[Image]:
+        """
+        Get all protected images for a prospective config.
+
+        Args:
+            config: Prospective config
+
+        Returns:
+            List of protected images
+        """
+        result = await self.db.execute(
+            select(Image)
+            .where(Image.protected_by_config_id == config.id)
+            .order_by(Image.captured_at)
+        )
+        return list(result.scalars().all())
+
+    async def mark_generation_complete(self, config: MultidayConfig) -> None:
+        """
+        Mark a prospective config as having completed generation.
+
+        Args:
+            config: Config that completed generation
+        """
+        config.status = "completed"
+        config.last_generation_at = datetime.utcnow()
+        await self.db.commit()
+        logger.info(f"Marked config {config.id} generation as complete")

@@ -2,6 +2,9 @@
 Multi-day Timelapse Task
 
 Scheduled task for generating multi-day summary timelapse videos.
+Supports two modes:
+- Historical (scheduled): Look back at past images
+- Prospective: Use images collected over time
 """
 
 import logging
@@ -16,6 +19,7 @@ from api.models.camera import Camera
 from api.models.image import Image
 from api.models.multiday_config import MultidayConfig
 from api.models.timelapse import Timelapse
+from api.services.multiday_timelapse import MultidayTimelapseService
 from api.services.notification import NotificationService
 from api.services.storage import StorageService
 from worker.ffmpeg.encoder import FFMPEGEncoder
@@ -29,32 +33,59 @@ async def run_multiday_timelapse_generation() -> None:
     Generate multi-day timelapse videos for all configured cameras.
 
     This task:
-    1. Finds all cameras with multi-day timelapse configs
-    2. Selects X images per hour over Y days
-    3. Protects selected images from cleanup
-    4. Generates a summary timelapse
-    5. Sends notifications on completion
+    1. Finds all cameras with multi-day timelapse configs (historical mode)
+    2. Checks for completed prospective collections
+    3. Selects X images per hour over Y days
+    4. Protects selected images from cleanup
+    5. Generates a summary timelapse
+    6. Sends notifications on completion
     """
     start_time = datetime.now(timezone.utc)
     logger.info(f"Starting multi-day timelapse generation at {start_time}")
 
     async with get_db_context() as db:
-        # Get all active multiday configs
+        multiday_service = MultidayTimelapseService(db)
+
+        # Check for completed prospective collections first
+        ready_configs = await multiday_service.check_completed_collections()
+        if ready_configs:
+            logger.info(f"Found {len(ready_configs)} completed prospective collection(s)")
+
+        # Get all active historical configs (scheduled generation)
         result = await db.execute(
             select(MultidayConfig)
             .join(Camera)
             .where(
                 MultidayConfig.is_enabled == True,
+                MultidayConfig.mode == "historical",
                 Camera.is_active == True,
             )
         )
-        configs = result.scalars().all()
+        historical_configs = list(result.scalars().all())
+
+        # Get prospective configs that are ready for generation
+        result = await db.execute(
+            select(MultidayConfig)
+            .join(Camera)
+            .where(
+                MultidayConfig.mode == "prospective",
+                MultidayConfig.status == "ready",
+                MultidayConfig.auto_generate == True,
+                Camera.is_active == True,
+            )
+        )
+        prospective_configs = list(result.scalars().all())
+
+        configs = historical_configs + prospective_configs
 
         if not configs:
-            logger.info("No multi-day timelapse configs found")
+            logger.info("No multi-day timelapse configs to process")
             return
 
-        logger.info(f"Processing {len(configs)} multi-day config(s)")
+        logger.info(
+            f"Processing {len(historical_configs)} historical + "
+            f"{len(prospective_configs)} prospective config(s)"
+        )
 
         notification_service = NotificationService(db)
         storage_service = StorageService()
@@ -79,24 +110,42 @@ async def run_multiday_timelapse_generation() -> None:
                     logger.warning(f"Camera {config.camera_id} not found")
                     continue
 
-                # Calculate date range
-                end_date = date.today() - timedelta(days=1)
-                start_date = end_date - timedelta(days=config.days_to_include - 1)
+                # Handle based on mode
+                if config.mode == "prospective" and config.status == "ready":
+                    # Use protected images from prospective collection
+                    selected_images = await multiday_service.get_images_for_prospective_config(
+                        config
+                    )
+                    if config.collection_start_date and config.collection_end_date:
+                        start_date = config.collection_start_date
+                        end_date = config.collection_end_date
+                    else:
+                        logger.warning(f"Prospective config {config.id} missing dates")
+                        continue
+                else:
+                    # Historical mode: look back from yesterday
+                    end_date = date.today() - timedelta(days=1)
+                    start_date = end_date - timedelta(days=config.days_to_include - 1)
 
-                # Select images for the timelapse
-                selected_images = await select_images_for_multiday(
-                    db=db,
-                    camera_id=config.camera_id,
-                    start_date=start_date,
-                    end_date=end_date,
-                    images_per_hour=config.images_per_hour,
-                )
+                    # Select images for the timelapse
+                    selected_images = await select_images_for_multiday(
+                        db=db,
+                        camera_id=config.camera_id,
+                        start_date=start_date,
+                        end_date=end_date,
+                        images_per_hour=config.images_per_hour,
+                    )
 
                 if not selected_images:
-                    logger.warning("No images found for multi-day timelapse")
+                    logger.warning(
+                        f"No images found for {config.mode} multi-day timelapse "
+                        f"(config {config.id})"
+                    )
                     continue
 
-                logger.info(f"Selected {len(selected_images)} images for timelapse")
+                logger.info(
+                    f"Selected {len(selected_images)} images for {config.mode} timelapse"
+                )
 
                 # Mark images as protected
                 for image in selected_images:
@@ -174,9 +223,15 @@ async def run_multiday_timelapse_generation() -> None:
                         f"{len(selected_images)} frames"
                     )
 
+                    # Mark prospective config as completed
+                    if config.mode == "prospective":
+                        await multiday_service.mark_generation_complete(config)
+
                 except Exception as e:
                     timelapse.status = "failed"
                     timelapse.error_message = str(e)
+                    if config.mode == "prospective":
+                        config.status = "failed"
                     await db.commit()
                     raise
 
