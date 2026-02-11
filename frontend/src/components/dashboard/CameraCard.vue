@@ -1,10 +1,11 @@
 <template>
   <router-link
     :to="`/cameras/${camera.id}`"
-    class="flex bg-white rounded-lg border border-gray-200 hover:border-primary-500/50 transition-colors shadow-sm overflow-hidden"
+    class="flex rounded-lg border hover:border-primary-500/50 transition-colors shadow-sm overflow-hidden"
+    style="background-color: var(--color-surface); border-color: var(--color-border);"
   >
     <!-- Thumbnail preview (small) -->
-    <div class="w-20 h-16 bg-gray-100 relative flex-shrink-0">
+    <div class="w-20 h-16 relative flex-shrink-0" style="background-color: var(--color-bg-secondary);">
       <img
         :src="`/api/cameras/${camera.id}/preview?t=${refreshKey}`"
         class="w-full h-full object-cover"
@@ -13,7 +14,8 @@
       />
       <div
         v-if="imageError"
-        class="absolute inset-0 flex items-center justify-center text-gray-400"
+        class="absolute inset-0 flex items-center justify-center"
+        style="color: var(--color-text-muted);"
       >
         <VideoCameraIcon class="w-5 h-5" />
       </div>
@@ -21,18 +23,18 @@
     <!-- Camera info -->
     <div class="p-2 flex-1 min-w-0">
       <div class="flex items-center justify-between mb-0.5">
-        <h3 class="font-medium text-gray-900 truncate text-sm">{{ camera.name }}</h3>
+        <h3 class="font-medium truncate text-sm" style="color: var(--color-text-primary);">{{ camera.name }}</h3>
         <span :class="statusClass" class="text-xs ml-2 flex-shrink-0">
           <span class="w-1.5 h-1.5 rounded-full mr-1" :class="statusDotClass"></span>
           {{ statusText }}
         </span>
       </div>
-      <div class="text-xs text-gray-500">
+      <div class="text-xs" style="color: var(--color-text-muted);">
         <p class="truncate">{{ camera.hostname || camera.ip_address }}</p>
         <p v-if="camera.last_capture_at">
           {{ formatTime(camera.last_capture_at) }}
         </p>
-        <p v-else class="text-gray-400">No captures yet</p>
+        <p v-else style="color: var(--color-text-muted);">No captures yet</p>
       </div>
     </div>
   </router-link>

@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './assets/themes.css';
+
 /* Custom scrollbar - Light mode */
 ::-webkit-scrollbar {
   width: 8px;
@@ -9,7 +11,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -22,10 +24,6 @@
 }
 
 /* Custom scrollbar - Dark mode */
-.dark ::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
 .dark ::-webkit-scrollbar-thumb {
   background: #475569;
 }
@@ -36,12 +34,9 @@
 
 /* Base styles */
 body {
-  @apply bg-gray-50 text-gray-900 min-h-screen antialiased;
-}
-
-.dark body,
-body.dark {
-  @apply bg-dark-950 text-gray-100;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  @apply min-h-screen antialiased;
 }
 
 /* Loading spinner */
@@ -51,12 +46,18 @@ body.dark {
 
 /* Card styles */
 .card {
-  @apply bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 shadow-sm;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  @apply rounded-lg border shadow-sm;
 }
 
 /* Button styles */
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-dark-900;
+  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.dark .btn {
+  @apply focus:ring-offset-slate-900;
 }
 
 .btn-primary {
@@ -64,7 +65,14 @@ body.dark {
 }
 
 .btn-secondary {
-  @apply btn bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 focus:ring-gray-500 border border-gray-300 dark:border-dark-600;
+  @apply btn border;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-hover);
 }
 
 .btn-danger {
@@ -77,7 +85,20 @@ body.dark {
 
 /* Input styles */
 .input {
-  @apply w-full px-3 py-2 bg-white dark:bg-dark-800 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  @apply w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Select styles for dark mode */
+.dark select option {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 /* Table styles */
@@ -86,15 +107,19 @@ body.dark {
 }
 
 .table th {
-  @apply px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-dark-800;
+  @apply px-4 py-3 text-xs font-medium uppercase tracking-wider;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
 }
 
 .table td {
-  @apply px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-dark-700;
+  @apply px-4 py-3 text-sm border-t;
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
 }
 
 .table tr:hover td {
-  @apply bg-gray-50 dark:bg-dark-700;
+  background-color: var(--color-surface-hover);
 }
 
 /* Status badges */
@@ -103,19 +128,35 @@ body.dark {
 }
 
 .badge-success {
-  @apply badge bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-300;
+  @apply badge bg-green-100 text-green-800;
+}
+
+.dark .badge-success {
+  @apply bg-green-500/20 text-green-300;
 }
 
 .badge-warning {
-  @apply badge bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-300;
+  @apply badge bg-yellow-100 text-yellow-800;
+}
+
+.dark .badge-warning {
+  @apply bg-yellow-500/20 text-yellow-300;
 }
 
 .badge-danger {
-  @apply badge bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-300;
+  @apply badge bg-red-100 text-red-800;
+}
+
+.dark .badge-danger {
+  @apply bg-red-500/20 text-red-300;
 }
 
 .badge-info {
-  @apply badge bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300;
+  @apply badge bg-blue-100 text-blue-800;
+}
+
+.dark .badge-info {
+  @apply bg-blue-500/20 text-blue-300;
 }
 
 /* Page transitions */

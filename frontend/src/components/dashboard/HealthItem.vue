@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between">
-    <span class="text-sm text-gray-700">{{ label }}</span>
+    <span class="text-sm" style="color: var(--color-text-secondary);">{{ label }}</span>
     <span :class="badgeClass">
       {{ displayStatus }}
     </span>

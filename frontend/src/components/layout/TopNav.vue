@@ -1,14 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-dark-950">
+  <div class="min-h-screen" style="background-color: var(--color-bg-primary);">
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+    <header class="sticky top-0 z-50 border-b backdrop-blur-sm"
+      style="background-color: var(--color-surface); border-color: var(--color-border);">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <!-- Logo -->
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <span class="text-xl font-bold text-primary-600 dark:text-primary-400">UniFi</span>
-              <span class="text-xl font-light text-gray-600 dark:text-gray-400 ml-1">Timelapse</span>
+              <span class="text-xl font-light ml-1" style="color: var(--color-text-secondary);">Timelapse</span>
             </div>
           </div>
 
@@ -22,8 +23,9 @@
                 'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                 isActive(item.to)
                   ? 'bg-primary-500/10 text-primary-600 dark:text-primary-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800'
+                  : 'hover:bg-gray-100 dark:hover:bg-slate-800'
               ]"
+              :style="!isActive(item.to) ? { color: 'var(--color-text-secondary)' } : {}"
             >
               <component :is="item.icon" class="h-5 w-5 mr-1.5" />
               {{ item.name }}
@@ -35,13 +37,14 @@
             <!-- System status indicator -->
             <div class="hidden sm:flex items-center space-x-2 text-sm">
               <span :class="statusClass" class="w-2 h-2 rounded-full"></span>
-              <span class="text-gray-500 dark:text-gray-400">{{ statusText }}</span>
+              <span style="color: var(--color-text-muted);">{{ statusText }}</span>
             </div>
 
             <!-- About button -->
             <button
               @click="showAbout = true"
-              class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors"
+              class="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
+              style="color: var(--color-text-secondary);"
               title="About"
             >
               <InformationCircleIcon class="h-5 w-5" />
@@ -50,7 +53,8 @@
             <!-- Theme toggle -->
             <button
               @click="themeStore.toggleColorMode"
-              class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors"
+              class="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
+              style="color: var(--color-text-secondary);"
               :title="themeTitle"
             >
               <SunIcon v-if="themeStore.isDark" class="h-5 w-5" />
@@ -60,7 +64,7 @@
             <!-- User menu -->
             <div class="relative">
               <button
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors"
+                class="flex items-center space-x-2 p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
                 @click="showUserMenu = !showUserMenu"
               >
                 <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
@@ -68,7 +72,7 @@
                     {{ userInitial }}
                   </span>
                 </div>
-                <ChevronDownIcon class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <ChevronDownIcon class="w-4 h-4" style="color: var(--color-text-muted);" />
               </button>
 
               <!-- Dropdown menu -->
@@ -82,22 +86,24 @@
               >
                 <div
                   v-if="showUserMenu"
-                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-800 rounded-lg shadow-lg border border-gray-200 dark:border-dark-700 py-1"
+                  class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg border py-1"
+                  style="background-color: var(--color-surface); border-color: var(--color-border);"
                 >
-                  <div class="px-4 py-2 border-b border-gray-200 dark:border-dark-700">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ authStore.user?.username }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <div class="px-4 py-2 border-b" style="border-color: var(--color-border);">
+                    <p class="text-sm font-medium" style="color: var(--color-text-primary);">{{ authStore.user?.username }}</p>
+                    <p class="text-xs" style="color: var(--color-text-muted);">
                       {{ authStore.isAdmin ? 'Administrator' : 'User' }}
                     </p>
                   </div>
                   <button
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-800"
+                    style="color: var(--color-text-secondary);"
                     @click="handleChangePassword"
                   >
                     Change Password
                   </button>
                   <button
-                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-dark-700"
+                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-slate-800"
                     @click="handleLogout"
                   >
                     Sign Out
@@ -108,7 +114,8 @@
 
             <!-- Mobile menu button -->
             <button
-              class="md:hidden p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg"
+              class="md:hidden p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
+              style="color: var(--color-text-secondary);"
               @click="mobileMenuOpen = !mobileMenuOpen"
             >
               <Bars3Icon v-if="!mobileMenuOpen" class="w-6 h-6" />
@@ -127,7 +134,8 @@
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-1"
       >
-        <div v-if="mobileMenuOpen" class="md:hidden border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900">
+        <div v-if="mobileMenuOpen" class="md:hidden border-t"
+          style="background-color: var(--color-surface); border-color: var(--color-border);">
           <nav class="px-4 py-3 space-y-1">
             <router-link
               v-for="item in navItems"
@@ -137,8 +145,9 @@
                 'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                 isActive(item.to)
                   ? 'bg-primary-500/10 text-primary-600 dark:text-primary-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800'
+                  : 'hover:bg-gray-100 dark:hover:bg-slate-800'
               ]"
+              :style="!isActive(item.to) ? { color: 'var(--color-text-secondary)' } : {}"
               @click="mobileMenuOpen = false"
             >
               <component :is="item.icon" class="h-5 w-5 mr-2" />
@@ -161,7 +170,7 @@
     <Modal v-model="showPasswordModal" title="Change Password">
       <form @submit.prevent="submitPasswordChange" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">
             Current Password
           </label>
           <input
@@ -172,7 +181,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">
             New Password
           </label>
           <input
@@ -184,7 +193,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-secondary);">
             Confirm New Password
           </label>
           <input
