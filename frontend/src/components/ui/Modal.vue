@@ -32,21 +32,21 @@
             <div
               v-if="modelValue"
               :class="[
-                'inline-block w-full text-left align-middle transition-all transform bg-white rounded-lg shadow-xl border border-gray-200',
+                'inline-block w-full text-left align-middle transition-all transform bg-white dark:bg-dark-800 rounded-lg shadow-xl border border-gray-200 dark:border-dark-700',
                 sizeClasses,
               ]"
             >
               <!-- Header -->
               <div
                 v-if="title || $slots.header"
-                class="flex items-center justify-between px-6 py-4 border-b border-gray-200"
+                class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-dark-700"
               >
                 <slot name="header">
-                  <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
                 </slot>
                 <button
                   v-if="closable"
-                  class="p-1 text-gray-500 hover:text-gray-900 rounded-lg"
+                  class="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                   @click="close"
                 >
                   <XMarkIcon class="w-5 h-5" />
@@ -61,7 +61,7 @@
               <!-- Footer -->
               <div
                 v-if="$slots.footer"
-                class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg"
+                class="px-6 py-4 border-t border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-800/50 rounded-b-lg"
               >
                 <slot name="footer"></slot>
               </div>
