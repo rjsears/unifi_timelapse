@@ -57,7 +57,7 @@ The entire system runs as a self-contained Docker Compose stack with 8 container
 - **Async Concurrent Capture** — Captures from up to 50 cameras simultaneously using asyncio
 - **Configurable Intervals** — Per-camera capture intervals (default 30 seconds)
 - **Automatic Retry** — Configurable retry logic with exponential backoff
-- **Blackout Periods** — Per-camera scheduling to skip captures during specific hours
+- **Blackout Periods** — Per-camera scheduling to skip captures during specific hours (supports overnight spans like 22:00-06:00)
 - **Organized Storage** — Images stored in `{camera_name}/{YYYYMMDD}/{timestamp}_{camera}.jpeg`
 
 ### Daily Timelapses
@@ -69,7 +69,10 @@ The entire system runs as a self-contained Docker Compose stack with 8 container
 
 ### Multi-Day Timelapses
 
-- **Summary Videos** — Generate timelapses spanning multiple days (e.g., weekly summaries)
+- **Two Generation Modes** — Historical (look back) and Prospective (collect forward)
+- **Historical Mode** — Generate timelapses from existing images on a schedule
+- **Prospective Mode** — Protect images as they're captured over a period, then generate
+- **Custom Timelapse** — One-off generation from existing images with date range picker
 - **Smart Selection** — Configurable images per hour across the date range
 - **Image Protection** — Selected images marked as protected from automatic cleanup
 - **Scheduled Generation** — Runs weekly on configurable day and time
@@ -91,11 +94,14 @@ The entire system runs as a self-contained Docker Compose stack with 8 container
 
 ### Web Interface
 
-- **Vue.js 3 Dashboard** — Modern, responsive dark-themed interface
+- **Vue.js 3 Dashboard** — Modern, responsive interface with dark/light mode toggle
+- **Top Navigation** — Clean horizontal navigation bar with quick access to all sections
 - **Real-Time Monitoring** — Live camera status and capture statistics
-- **Timelapse Browser** — View and download generated videos
+- **Timelapse Browser** — View, play, and download generated videos
+- **Custom Timelapse Builder** — Create one-off timelapses from existing images with date range picker
 - **Image Gallery** — Browse captured images with protection toggle
-- **System Settings** — Configure all options from the web UI
+- **Collapsible Settings** — Organized settings panels with icons for easy navigation
+- **About Dialog** — Version information, author details, and GitHub link
 
 ### Automatic Cleanup
 
@@ -319,6 +325,33 @@ All configuration is done via environment variables in `.env`:
 | `CAPTURE_TIMEOUT` | `30` | HTTP request timeout in seconds |
 | `CAPTURE_RETRIES` | `3` | Retry attempts on failure |
 
+#### Camera Blackout Periods
+
+Blackout periods allow you to skip image captures during specific hours (e.g., nighttime when there's no activity). Configure per-camera via the web interface or API:
+
+```bash
+curl -X PUT http://localhost/api/cameras/{id} \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "blackout_start": "22:00",
+    "blackout_end": "06:00"
+  }'
+```
+
+**Features:**
+- **Overnight Spans** — Supports periods that cross midnight (e.g., 22:00 to 06:00)
+- **Per-Camera** — Each camera can have its own blackout schedule
+- **Optional** — Leave both times empty to capture 24/7
+- **Timezone Aware** — Uses the system's configured timezone
+
+**Use cases:**
+- Skip nighttime captures when there's no activity
+- Avoid capturing during maintenance windows
+- Reduce storage for cameras monitoring daytime-only activities
+
+---
+
 #### Timelapse Settings
 
 | Variable | Default | Description |
@@ -369,49 +402,89 @@ All configuration is done via environment variables in `.env`:
 
 ## 🖥 Web Interface
 
-The Vue.js dashboard provides complete system management:
+The Vue.js dashboard provides complete system management with a modern, responsive design featuring dark and light mode support.
+
+### Theme Support
+
+- **Dark/Light Mode Toggle** — Switch between dark and light themes with a single click
+- **System Preference Detection** — Automatically follows your OS theme preference
+- **Persistent Selection** — Theme choice saved to local storage
+
+### Navigation
+
+- **Top Navigation Bar** — Horizontal navigation with quick access to all sections
+- **User Menu** — Profile dropdown with password change and logout options
+- **System Status Indicator** — Real-time health status in the header
+- **About Dialog** — Version information, author details, and GitHub link
 
 ### Dashboard
 
-- Real-time capture statistics
-- Camera health overview
-- Recent timelapses
-- Storage usage indicator
+- Real-time capture statistics with colored stat cards
+- Camera health overview with status indicators
+- Recent timelapses with status badges
+- Storage usage indicator with warning colors
 
 ### Cameras
 
-- Add/edit/delete cameras
+- Add/edit/delete cameras with modal forms
 - Configure per-camera capture intervals
-- Set blackout periods
-- View capture history
+- **Blackout Period Configuration** — Set start/end times to skip captures (supports overnight spans)
+- Test camera connectivity with one click
+- Trigger manual captures
+- View capture history and last capture time
 
 ### Timelapses
 
+Three-tab interface for complete timelapse management:
+
+#### Videos Tab
 - Browse daily and multi-day timelapses
-- Video player with download option
-- Filter by camera and date range
-- View encoding details
+- In-browser video player with download option
+- Filter by camera, status, and type
+- View encoding details (frame count, duration)
+
+#### Scheduled Configs Tab
+- Create and manage multi-day timelapse configurations
+- **Historical Mode** — Look back and generate from past images on a schedule
+- **Prospective Mode** — Collect images going forward, then generate when complete
+- Progress indicator for active prospective collections
+- Start/cancel collection controls
+- Trigger manual generation
+
+#### Custom Timelapse Tab
+- Generate one-off timelapses from existing images
+- Camera selection with available date range display
+- Date range picker showing image availability
+- Configurable video settings (images per hour, frame rate, CRF, pixel format)
+- Estimated output preview (frame count and duration)
 
 ### Images
 
-- Gallery view of captured images
+- Gallery view of captured images with thumbnails
 - Filter by camera and date
-- Toggle protection status
-- Bulk operations
+- Toggle protection status (protected images survive cleanup)
+- Image viewer with navigation between images
+- Download and delete options
 
 ### Health
 
-- Camera connectivity status
-- Uptime percentages
-- Alert history
-- Health check configuration
+Collapsible card interface for organized health monitoring:
+
+- **Camera Status** — Connectivity status, uptime percentage, response times
+- **Health History (24h)** — Timeline visualization of camera health
+- **Recent Alerts** — Camera warnings and errors with timestamps
 
 ### Settings
 
-- Capture defaults
-- Timelapse encoding options
-- Retention policies
-- Notification configuration
+Collapsible card interface organized by category:
+
+- **Capture Settings** — Default intervals, concurrent captures, timeouts
+- **Timelapse Settings** — Frame rate, CRF quality, pixel format, generation time
+- **Retention Settings** — Image and video retention days, cleanup time
+- **Notification Channels** — Add/test/delete Apprise notification channels
+- **System Information** — Version, status, database, uptime
+- **Storage** — Visual usage bar with percentage
+- **Scheduled Tasks** — View background job schedules
 
 ---
 
@@ -438,6 +511,13 @@ Full OpenAPI documentation available at `/api/docs` when running.
 | `GET` | `/api/health/system` | System health check |
 | `GET` | `/api/settings` | Get system settings |
 | `PUT` | `/api/settings` | Update system settings |
+| `GET` | `/api/images/camera/{id}/available-dates` | Get available image dates for a camera |
+| `GET` | `/api/multiday` | List multi-day timelapse configs |
+| `POST` | `/api/multiday` | Create multi-day config |
+| `POST` | `/api/multiday/generate-historical` | Generate one-off timelapse from date range |
+| `POST` | `/api/multiday/{id}/start-collection` | Start prospective collection |
+| `GET` | `/api/multiday/{id}/progress` | Get collection progress |
+| `POST` | `/api/multiday/{id}/cancel-collection` | Cancel prospective collection |
 
 ### Authentication
 
@@ -491,16 +571,60 @@ Output files are organized as:
 
 Multi-day timelapses create summary videos spanning multiple days—perfect for weekly progress videos or long-term project documentation.
 
-### How It Works
+### Generation Modes
 
-1. **Image Selection** — Selects `MULTIDAY_IMAGES_PER_HOUR` images evenly distributed across each hour
+The system supports two distinct modes for multi-day timelapses:
+
+#### Historical Mode (Look Back)
+
+Historical mode generates timelapses from images that already exist. This is the traditional approach:
+
+1. Configure a schedule (e.g., every Sunday at 2 AM)
+2. When triggered, the system looks back X days from yesterday
+3. Selects images at the configured rate (e.g., 2 per hour)
+4. Generates the timelapse immediately
+
+**Use case:** Weekly summary videos from the past 7 days of captures.
+
+**Limitation:** If your image retention is 7 days, you can't build a 30-day timelapse because older images are deleted.
+
+#### Prospective Mode (Collect Forward)
+
+Prospective mode solves the retention limitation by protecting images as they're captured:
+
+1. Create a prospective config (e.g., "Collect for 30 days")
+2. Start the collection from the web interface
+3. As images are captured, matching ones are marked as protected
+4. Progress shows "Day 12 of 30" in the configs list
+5. When collection completes, the timelapse generates automatically (if enabled)
+
+**Use case:** Long-term construction timelapses, seasonal changes, or any period longer than your retention window.
+
+**Benefit:** Protected images survive automatic cleanup, so you can build 30, 60, or 90-day timelapses even with 7-day retention.
+
+### Custom Timelapse (One-Off Generation)
+
+For ad-hoc timelapse generation, use the **Custom Timelapse** tab:
+
+1. Select a camera
+2. View available date range and image counts
+3. Pick start and end dates
+4. Configure video settings (images per hour, frame rate, CRF, pixel format)
+5. See estimated output (frame count and duration)
+6. Click Generate
+
+This creates a one-time timelapse without creating a recurring schedule.
+
+### How Image Selection Works
+
+1. **Image Selection** — Selects `images_per_hour` images evenly distributed across each hour
 2. **Protection** — Selected images are marked as `is_protected = true` to prevent cleanup
-3. **Encoding** — FFMPEG generates the summary video using the same quality settings
+3. **Encoding** — FFMPEG generates the summary video using configured quality settings
 4. **Storage** — Videos saved to `videos/{camera}/summary/`
 
 ### Configuration
 
-In `.env`:
+In `.env` (defaults for new configs):
 
 ```bash
 # Select 2 images per hour
@@ -516,17 +640,66 @@ MULTIDAY_GENERATION_TIME=02:00
 
 ### Per-Camera Configuration
 
-Each camera can have custom multi-day settings via the API or web interface:
+Each camera can have multiple multi-day configurations via the web interface or API:
 
 ```bash
-curl -X POST http://localhost/api/cameras/{id}/multiday-config \
+# Create a historical config (weekly summary)
+curl -X POST http://localhost/api/multiday \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
+    "camera_id": "uuid-here",
+    "name": "Weekly Summary",
+    "mode": "historical",
     "is_enabled": true,
-    "days_to_include": 14,
-    "images_per_hour": 4,
-    "frame_rate": 60
+    "days_to_include": 7,
+    "images_per_hour": 2,
+    "generation_day": "sunday",
+    "generation_time": "02:00",
+    "frame_rate": 30,
+    "crf": 20,
+    "pixel_format": "yuv444p"
+  }'
+
+# Create a prospective config (30-day collection)
+curl -X POST http://localhost/api/multiday \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "camera_id": "uuid-here",
+    "name": "Monthly Progress",
+    "mode": "prospective",
+    "is_enabled": true,
+    "days_to_include": 30,
+    "images_per_hour": 2,
+    "auto_generate": true,
+    "frame_rate": 30,
+    "crf": 20,
+    "pixel_format": "yuv444p"
+  }'
+
+# Start prospective collection
+curl -X POST http://localhost/api/multiday/{config_id}/start-collection \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"days": 30}'
+
+# Check collection progress
+curl http://localhost/api/multiday/{config_id}/progress \
+  -H "Authorization: Bearer $TOKEN"
+
+# Generate custom timelapse from existing images
+curl -X POST http://localhost/api/multiday/generate-historical \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "camera_id": "uuid-here",
+    "start_date": "2026-02-01",
+    "end_date": "2026-02-07",
+    "images_per_hour": 2,
+    "frame_rate": 30,
+    "crf": 20,
+    "pixel_format": "yuv444p"
   }'
 ```
 
