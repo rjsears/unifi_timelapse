@@ -386,8 +386,8 @@
           </div>
 
           <!-- Estimated Output -->
-          <div v-if="customForm.start_date && customForm.end_date" class="bg-blue-50 rounded-lg p-4">
-            <div class="text-sm text-blue-800">
+          <div v-if="customForm.start_date && customForm.end_date" class="rounded-lg p-4 bg-blue-100 dark:bg-blue-500/20">
+            <div class="text-sm text-blue-800 dark:text-blue-300">
               <strong>Estimated:</strong>
               {{ estimatedFrames }} frames
               (~{{ estimatedDuration }} at {{ customForm.frame_rate }}fps)
@@ -469,7 +469,7 @@
       <form @submit.prevent="saveConfig" class="space-y-4">
         <!-- Mode Selection -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+          <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">Mode</label>
           <div class="flex space-x-4">
             <label class="flex items-center">
               <input
@@ -558,7 +558,7 @@
 
         <!-- Prospective mode: Auto-generate -->
         <template v-else>
-          <div class="bg-blue-50 rounded-lg p-4">
+          <div class="rounded-lg p-4 bg-blue-100 dark:bg-blue-500/20">
             <label class="flex items-center">
               <input v-model="configForm.auto_generate" type="checkbox" class="mr-2" />
               <span style="color: var(--color-text-secondary);">Auto-generate when collection completes</span>
@@ -794,7 +794,10 @@ async function loadCameras() {
 
 async function generateTimelapse() {
   try {
-    await api.post('/timelapses/generate', generateForm.value)
+    await api.post(`/timelapses/camera/${generateForm.value.camera_id}`, {
+      date_start: generateForm.value.date,
+      date_end: generateForm.value.date,
+    })
     notifications.success('Started', 'Timelapse generation started')
     showGenerateModal.value = false
     await loadTimelapses()
