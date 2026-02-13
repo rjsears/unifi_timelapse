@@ -57,19 +57,22 @@ const refreshKey = ref(Date.now())
 
 const statusClass = computed(() => {
   if (!props.camera.is_active) return 'badge bg-gray-200 text-gray-500'
-  if (props.camera.consecutive_errors > 0) return 'badge-danger'
+  if (props.camera.consecutive_errors >= 3) return 'badge-danger'
+  if (props.camera.consecutive_errors > 0) return 'badge-warning'
   return 'badge-success'
 })
 
 const statusDotClass = computed(() => {
   if (!props.camera.is_active) return 'bg-gray-400'
-  if (props.camera.consecutive_errors > 0) return 'bg-red-500'
+  if (props.camera.consecutive_errors >= 3) return 'bg-red-500'
+  if (props.camera.consecutive_errors > 0) return 'bg-yellow-500'
   return 'bg-green-500'
 })
 
 const statusText = computed(() => {
   if (!props.camera.is_active) return 'Inactive'
-  if (props.camera.consecutive_errors > 0) return 'Error'
+  if (props.camera.consecutive_errors >= 3) return 'Failing'
+  if (props.camera.consecutive_errors > 0) return 'Warning'
   return 'Active'
 })
 
