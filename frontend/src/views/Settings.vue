@@ -411,10 +411,11 @@ const settings = ref({
   default_crf: 20,
   default_pixel_format: 'yuv444p',
   daily_timelapse_time: '01:00',
+  multiday_generation_day: 'sunday',
+  multiday_generation_time: '02:00',
   retention_days_images: 7,
   retention_days_videos: 365,
   cleanup_time: '03:00',
-  cleanup_after_timelapse: true,
 })
 
 const notificationConfigs = ref([])
@@ -428,12 +429,17 @@ const notificationForm = ref({
   notify_on_storage_warn: true,
 })
 
-const scheduledTasks = ref([
-  { id: 1, name: 'Camera Capture Cycle', schedule: 'Every 30s' },
-  { id: 2, name: 'Daily Timelapse Generation', schedule: '01:00 daily' },
-  { id: 3, name: 'Multi-day Timelapse', schedule: 'Sunday 02:00' },
-  { id: 4, name: 'File Cleanup', schedule: '03:00 daily' },
+const scheduledTasks = computed(() => [
+  { id: 1, name: 'Camera Capture', schedule: 'Per camera settings' },
+  { id: 2, name: 'Daily Timelapse Generation', schedule: `${settings.value.daily_timelapse_time} daily` },
+  { id: 3, name: 'Multi-day Timelapse', schedule: `${capitalizeFirstLetter(settings.value.multiday_generation_day || 'Sunday')} ${settings.value.multiday_generation_time || '02:00'}` },
+  { id: 4, name: 'File Cleanup', schedule: `${settings.value.cleanup_time} daily` },
 ])
+
+function capitalizeFirstLetter(string) {
+  if (!string) return ''
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+}
 
 const systemInfo = computed(() => systemStore.systemInfo)
 const storageInfo = computed(() => systemStore.storageInfo)
