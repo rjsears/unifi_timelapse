@@ -58,7 +58,7 @@ class HealthMonitor:
             for camera in cameras:
                 try:
                     # Run connectivity check
-                    is_reachable = await self.connectivity_checker.check(camera)
+                    is_reachable, response_time_ms = await self.connectivity_checker.check(camera)
 
                     if not is_reachable:
                         logger.warning(f"Camera {camera.name} is unreachable")
@@ -66,13 +66,13 @@ class HealthMonitor:
                             db=db,
                             camera=camera,
                         )
-                        continue
 
-                    # Update uptime
+                    # Always record health check (reachable or not)
                     await self.uptime_tracker.record_check(
                         db=db,
                         camera=camera,
                         is_reachable=is_reachable,
+                        response_time_ms=response_time_ms,
                     )
 
                 except Exception as e:
