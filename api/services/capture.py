@@ -46,6 +46,7 @@ class CaptureService:
         self.db = db
         self.settings = get_settings()
         self.storage = StorageService()
+        self._commit_lock = asyncio.Lock()  # Serialize DB commits
 
     def _get_local_time(self) -> datetime:
         """Get current time in configured timezone as naive datetime."""
@@ -125,7 +126,9 @@ class CaptureService:
             camera.last_capture_status = "success"
             camera.consecutive_errors = 0
 
-            await self.db.commit()
+            # Use lock to serialize commits (prevents concurrent commit errors)
+            async with self._commit_lock:
+                await self.db.commit()
 
             logger.info(f"Captured image from {camera.name}: {relative_path}")
 
@@ -153,7 +156,10 @@ class CaptureService:
         camera.last_capture_at = timestamp
         camera.last_capture_status = "failed"
         camera.consecutive_errors += 1
-        await self.db.commit()
+
+        # Use lock to serialize commits (prevents concurrent commit errors)
+        async with self._commit_lock:
+            await self.db.commit()
 
         return CaptureResult(
             camera=camera,
