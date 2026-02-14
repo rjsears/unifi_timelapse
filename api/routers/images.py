@@ -5,6 +5,7 @@ Image management endpoints.
 """
 
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from typing import Optional
 from uuid import UUID
 
@@ -85,8 +86,10 @@ async def get_image_stats(
     """
     Get image statistics.
     """
-    # Get today's date range (naive datetime to match DB)
-    now = datetime.utcnow()
+    # Get today's date range in configured timezone (naive datetime to match DB)
+    settings = get_settings()
+    tz = ZoneInfo(settings.tz)
+    now = datetime.now(tz).replace(tzinfo=None)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Count images captured today

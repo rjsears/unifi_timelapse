@@ -8,12 +8,12 @@
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div>
-          <router-link to="/cameras" class="text-sm text-gray-500 hover:text-gray-900 flex items-center mb-2">
+          <router-link to="/cameras" class="text-sm flex items-center mb-2 hover:opacity-80" style="color: var(--color-text-muted);">
             <ArrowLeftIcon class="w-4 h-4 mr-1" />
             Back to Cameras
           </router-link>
-          <h1 class="text-2xl font-bold text-gray-900">{{ camera.name }}</h1>
-          <p class="text-gray-500">{{ camera.hostname || camera.ip_address }}</p>
+          <h1 class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ camera.name }}</h1>
+          <p style="color: var(--color-text-muted);">{{ camera.hostname || camera.ip_address }}</p>
         </div>
         <div class="flex items-center space-x-3">
           <button class="btn-secondary" @click="testConnection">
@@ -30,22 +30,22 @@
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="card p-4">
-          <p class="text-sm text-gray-500">Status</p>
+          <p class="text-sm" style="color: var(--color-text-muted);">Status</p>
           <p class="text-lg font-semibold" :class="statusColor">{{ statusText }}</p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-gray-500">Capture Interval</p>
-          <p class="text-lg font-semibold text-gray-900">{{ camera.capture_interval }}s</p>
+          <p class="text-sm" style="color: var(--color-text-muted);">Capture Interval</p>
+          <p class="text-lg font-semibold" style="color: var(--color-text-primary);">{{ camera.capture_interval }}s</p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-gray-500">Last Capture</p>
-          <p class="text-lg font-semibold text-gray-900">
+          <p class="text-sm" style="color: var(--color-text-muted);">Last Capture</p>
+          <p class="text-lg font-semibold" style="color: var(--color-text-primary);">
             {{ camera.last_capture_at ? formatTime(camera.last_capture_at) : 'Never' }}
           </p>
         </div>
         <div class="card p-4">
-          <p class="text-sm text-gray-500">Images Today</p>
-          <p class="text-lg font-semibold text-gray-900">{{ imagesCount }}</p>
+          <p class="text-sm" style="color: var(--color-text-muted);">Total Images</p>
+          <p class="text-lg font-semibold" style="color: var(--color-text-primary);">{{ imagesCount }}</p>
         </div>
       </div>
 
@@ -53,11 +53,11 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Live preview -->
         <div class="card">
-          <div class="p-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Live Preview</h2>
+          <div class="p-4 border-b" style="border-color: var(--color-border);">
+            <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">Live Preview</h2>
           </div>
           <div class="p-4">
-            <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            <div class="aspect-video rounded-lg overflow-hidden" style="background-color: var(--color-bg-secondary);">
               <img
                 v-if="previewUrl"
                 :src="previewUrl"
@@ -65,7 +65,7 @@
                 class="w-full h-full object-contain"
                 @error="previewError = true"
               />
-              <div v-else class="flex items-center justify-center h-full text-gray-500">
+              <div v-else class="flex items-center justify-center h-full" style="color: var(--color-text-muted);">
                 <span v-if="previewError">Failed to load preview</span>
                 <span v-else>Loading...</span>
               </div>
@@ -81,21 +81,21 @@
 
         <!-- Recent images -->
         <div class="card">
-          <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900">Recent Images</h2>
+          <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--color-border);">
+            <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">Recent Images</h2>
             <router-link :to="`/images?camera=${camera.id}`" class="text-sm text-primary-600">
               View All
             </router-link>
           </div>
           <div class="p-4">
-            <div v-if="recentImages.length === 0" class="text-center py-8 text-gray-500">
+            <div v-if="recentImages.length === 0" class="text-center py-8" style="color: var(--color-text-muted);">
               No images captured yet
             </div>
             <div v-else class="grid grid-cols-3 gap-2">
               <div
                 v-for="image in recentImages"
                 :key="image.id"
-                class="aspect-video bg-gray-100 rounded overflow-hidden"
+                class="aspect-video rounded overflow-hidden" style="background-color: var(--color-bg-secondary);"
               >
                 <img
                   :src="`/api/images/${image.id}/thumbnail`"
@@ -109,40 +109,40 @@
 
       <!-- Configuration -->
       <div class="card">
-        <div class="p-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Configuration</h2>
+        <div class="p-4 border-b" style="border-color: var(--color-border);">
+          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">Configuration</h2>
         </div>
         <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <p class="text-sm text-gray-500">Active</p>
-            <p class="text-gray-900">{{ camera.is_active ? 'Yes' : 'No' }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Active</p>
+            <p style="color: var(--color-text-primary);">{{ camera.is_active ? 'Yes' : 'No' }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Timelapse Enabled</p>
-            <p class="text-gray-900">{{ camera.timelapse_enabled ? 'Yes' : 'No' }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Timelapse Enabled</p>
+            <p style="color: var(--color-text-primary);">{{ camera.timelapse_enabled ? 'Yes' : 'No' }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Timelapse Time</p>
-            <p class="text-gray-900">{{ camera.timelapse_time || 'Default' }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Timelapse Time</p>
+            <p style="color: var(--color-text-primary);">{{ camera.timelapse_time || 'Default' }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Blackout Start</p>
-            <p class="text-gray-900">{{ camera.blackout_start || 'None' }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Blackout Start</p>
+            <p style="color: var(--color-text-primary);">{{ camera.blackout_start || 'None' }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Blackout End</p>
-            <p class="text-gray-900">{{ camera.blackout_end || 'None' }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Blackout End</p>
+            <p style="color: var(--color-text-primary);">{{ camera.blackout_end || 'None' }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Consecutive Errors</p>
-            <p class="text-gray-900">{{ camera.consecutive_errors }}</p>
+            <p class="text-sm" style="color: var(--color-text-muted);">Consecutive Errors</p>
+            <p style="color: var(--color-text-primary);">{{ camera.consecutive_errors }}</p>
           </div>
         </div>
       </div>
     </template>
 
     <div v-else class="text-center py-12">
-      <p class="text-gray-500">Camera not found</p>
+      <p style="color: var(--color-text-muted);">Camera not found</p>
       <router-link to="/cameras" class="text-primary-600 mt-4 inline-block">
         Back to Cameras
       </router-link>
@@ -226,10 +226,10 @@ function refreshPreview() {
 async function testConnection() {
   notifications.info('Testing...', 'Testing camera connection')
   const result = await camerasStore.testCamera(route.params.id)
-  if (result.success && result.result.reachable) {
-    notifications.success('Success', 'Camera is reachable')
+  if (result.success && result.result?.success) {
+    notifications.success('Success', `Camera is reachable (${result.result.response_time_ms}ms)`)
   } else {
-    notifications.error('Failed', result.result?.error || 'Camera is not reachable')
+    notifications.error('Failed', result.result?.error || result.error || 'Camera is not reachable')
   }
 }
 
