@@ -28,7 +28,7 @@ class ConnectivityChecker:
         """
         self.timeout = timeout
 
-    async def check(self, camera: Camera) -> bool:
+    async def check(self, camera: Camera) -> tuple[bool, int | None]:
         """
         Check if a camera is reachable.
 
@@ -36,38 +36,43 @@ class ConnectivityChecker:
             camera: Camera to check
 
         Returns:
-            True if camera is reachable
+            Tuple of (is_reachable, response_time_ms)
         """
         try:
+            import time
             async with httpx.AsyncClient() as client:
-                response = await client.head(
+                start = time.time()
+                # Use GET instead of HEAD - some cameras don't support HEAD
+                response = await client.get(
                     camera.url,
                     timeout=self.timeout,
                     follow_redirects=True,
                 )
+                elapsed_ms = int((time.time() - start) * 1000)
+
                 # Consider 2xx and 3xx as success
                 is_reachable = response.status_code < 400
 
                 if is_reachable:
-                    logger.debug(f"Camera {camera.name} is reachable")
+                    logger.debug(f"Camera {camera.name} is reachable ({elapsed_ms}ms)")
                 else:
                     logger.warning(
                         f"Camera {camera.name} returned status {response.status_code}"
                     )
 
-                return is_reachable
+                return is_reachable, elapsed_ms if is_reachable else None
 
         except httpx.TimeoutException:
             logger.warning(f"Camera {camera.name} connection timed out")
-            return False
+            return False, None
 
         except httpx.ConnectError:
             logger.warning(f"Camera {camera.name} connection refused")
-            return False
+            return False, None
 
         except Exception as e:
             logger.warning(f"Camera {camera.name} check failed: {e}")
-            return False
+            return False, None
 
     async def check_with_image(self, camera: Camera) -> tuple[bool, Optional[bytes]]:
         """
