@@ -226,10 +226,10 @@ function refreshPreview() {
 async function testConnection() {
   notifications.info('Testing...', 'Testing camera connection')
   const result = await camerasStore.testCamera(route.params.id)
-  if (result.success && result.result.reachable) {
-    notifications.success('Success', 'Camera is reachable')
+  if (result.success && result.result?.success) {
+    notifications.success('Success', `Camera is reachable (${result.result.response_time_ms}ms)`)
   } else {
-    notifications.error('Failed', result.result?.error || 'Camera is not reachable')
+    notifications.error('Failed', result.result?.error || result.error || 'Camera is not reachable')
   }
 }
 
