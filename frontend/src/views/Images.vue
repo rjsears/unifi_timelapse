@@ -45,8 +45,11 @@
           >
             <div class="aspect-video rounded-lg overflow-hidden" style="background-color: var(--color-bg-secondary);">
               <img
-                :src="`/api/images/${image.id}/thumbnail`"
+                :src="getImageSrc(image)"
+                :key="imageRetryKeys[image.id] || 0"
+                loading="lazy"
                 class="w-full h-full object-cover transition-transform group-hover:scale-105"
+                @error="handleImageError(image)"
               />
             </div>
             <!-- Protected indicator -->
@@ -193,6 +196,11 @@ const filters = ref({
   protected: false,
 })
 
+// Track image retry keys for failed loads
+const imageRetryKeys = ref({})
+const imageRetryCount = ref({})
+const MAX_RETRIES = 2
+
 async function loadImages() {
   loading.value = true
   try {
@@ -206,6 +214,9 @@ async function loadImages() {
     const response = await api.get(`/images?${params}`)
     images.value = response.data.images || response.data
     total.value = response.data.total || images.value.length
+    // Reset retry counters when loading new images
+    imageRetryKeys.value = {}
+    imageRetryCount.value = {}
   } catch (error) {
     notifications.error('Error', 'Failed to load images')
   } finally {
@@ -275,6 +286,25 @@ async function deleteImage() {
 
 function formatTime(dateStr) {
   return format(new Date(dateStr), 'HH:mm:ss')
+}
+
+function getImageSrc(image) {
+  const retryKey = imageRetryKeys.value[image.id] || 0
+  // Add cache-busting param on retry
+  return retryKey > 0
+    ? `/api/images/${image.id}/thumbnail?retry=${retryKey}`
+    : `/api/images/${image.id}/thumbnail`
+}
+
+function handleImageError(image) {
+  const currentRetries = imageRetryCount.value[image.id] || 0
+  if (currentRetries < MAX_RETRIES) {
+    // Schedule retry after a short delay
+    setTimeout(() => {
+      imageRetryCount.value[image.id] = currentRetries + 1
+      imageRetryKeys.value[image.id] = (imageRetryKeys.value[image.id] || 0) + 1
+    }, 500 * (currentRetries + 1)) // Exponential backoff: 500ms, 1000ms
+  }
 }
 
 function formatDateTime(dateStr) {
