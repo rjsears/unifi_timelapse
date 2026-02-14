@@ -174,16 +174,6 @@
               class="input"
             />
           </div>
-          <div class="flex items-center">
-            <label class="flex items-center cursor-pointer">
-              <input
-                v-model="settings.cleanup_after_timelapse"
-                type="checkbox"
-                class="w-4 h-4 text-primary-600 rounded border-gray-300 dark:border-dark-600 focus:ring-primary-500 dark:bg-dark-700"
-              />
-              <span class="ml-2" style="color: var(--color-text-secondary);">Delete images after timelapse</span>
-            </label>
-          </div>
         </div>
       </CollapsibleCard>
 
@@ -414,7 +404,6 @@ const settings = ref({
   retention_days_images: 7,
   retention_days_videos: 365,
   cleanup_time: '03:00',
-  cleanup_after_timelapse: true,
 })
 
 const notificationConfigs = ref([])

@@ -107,7 +107,7 @@ class Settings(BaseSettings):
 
     # Cleanup
     cleanup_after_timelapse: bool = Field(
-        default=True, description="Delete images after timelapse creation"
+        default=False, description="Delete images after timelapse creation (deprecated - use retention instead)"
     )
     retention_days_images: int = Field(
         default=7, ge=1, description="Days to retain images"
