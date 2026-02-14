@@ -72,7 +72,6 @@ async def seed_default_settings() -> None:
         ("default_crf", str(settings.default_crf), "integer", "timelapse", "Default CRF quality (0-51, lower=better)"),
         ("default_pixel_format", settings.default_pixel_format, "string", "timelapse", "Default pixel format"),
         ("ffmpeg_timeout", str(settings.ffmpeg_timeout), "integer", "timelapse", "FFMPEG timeout in seconds"),
-        ("cleanup_after_timelapse", str(settings.cleanup_after_timelapse).lower(), "boolean", "cleanup", "Delete images after timelapse creation"),
         ("retention_days_images", str(settings.retention_days_images), "integer", "cleanup", "Days to retain images"),
         ("retention_days_videos", str(settings.retention_days_videos), "integer", "cleanup", "Days to retain videos"),
     ]

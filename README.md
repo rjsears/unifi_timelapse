@@ -375,7 +375,6 @@ curl -X PUT http://localhost/api/cameras/{id} \
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CLEANUP_AFTER_TIMELAPSE` | `true` | Delete images after daily timelapse |
 | `RETENTION_DAYS_IMAGES` | `7` | Days to keep images |
 | `RETENTION_DAYS_VIDEOS` | `365` | Days to keep videos |
 | `CLEANUP_TIME` | `03:00` | When to run cleanup |

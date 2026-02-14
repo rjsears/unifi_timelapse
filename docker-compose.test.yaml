@@ -1,11 +1,13 @@
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# docker-compose.yaml
+# docker-compose.test.yaml
 #
-# UniFi Timelapse System
-# Version 1.0.0 - February 2026
+# UniFi Timelapse System - Test Instance
+# Use this to run alongside an existing installation
 #
-# Richard J. Sears
-# https://github.com/rjsears/unifi_timelapse
+# Usage:
+#   docker compose -f docker-compose.test.yaml up -d
+#
+# Access at: http://your-server:8080
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 services:
@@ -14,49 +16,46 @@ services:
   # ===========================================
   postgres:
     image: postgres:16-alpine
-    container_name: timelapse_postgres
+    container_name: timelapse2_postgres
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-timelapse}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - POSTGRES_DB=${POSTGRES_DB:-timelapse}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres2_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER:-timelapse} -d ${POSTGRES_DB:-timelapse}']
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Redis Cache
   # ===========================================
   redis:
     image: redis:7-alpine
-    container_name: timelapse_redis
+    container_name: timelapse2_redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
     volumes:
-      - redis_data:/data
+      - redis2_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Timelapse API (FastAPI)
   # ===========================================
   timelapse_api:
     image: rjsears/unifi-timelapse-api:${IMAGE_TAG:-latest}
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    container_name: timelapse_api
+    container_name: timelapse2_api
     restart: unless-stopped
     environment:
       # Database
@@ -101,9 +100,9 @@ services:
       - APPRISE_ENABLED=${APPRISE_ENABLED:-false}
       - APPRISE_URL=${APPRISE_URL:-http://apprise:8000}
     volumes:
-      - /root/unifi_timelapse/output:/output
-      - timelapse_logs:/app/logs
-      - timelapse_config:/app/config
+      - /root/unifi_timelapse2/output:/output
+      - timelapse2_logs:/app/logs
+      - timelapse2_config:/app/config
     expose:
       - "8000"
     depends_on:
@@ -118,17 +117,14 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Timelapse Worker (Capture & FFMPEG)
   # ===========================================
   timelapse_worker:
     image: rjsears/unifi-timelapse-worker:${IMAGE_TAG:-latest}
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    container_name: timelapse_worker
+    container_name: timelapse2_worker
     restart: unless-stopped
     environment:
       # Database
@@ -163,8 +159,8 @@ services:
       - APPRISE_URL=${APPRISE_URL:-http://apprise:8000}
       - MIN_FAILURES_BEFORE_ALERT=${MIN_FAILURES_BEFORE_ALERT:-3}
     volumes:
-      - /root/unifi_timelapse/output:/output
-      - timelapse_logs:/app/logs
+      - /root/unifi_timelapse2/output:/output
+      - timelapse2_logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -179,17 +175,14 @@ services:
       retries: 3
       start_period: 15s
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Camera Health Monitor
   # ===========================================
   timelapse_health:
     image: rjsears/unifi-timelapse-health:${IMAGE_TAG:-latest}
-    build:
-      context: .
-      dockerfile: Dockerfile.health
-    container_name: timelapse_health
+    container_name: timelapse2_health
     restart: unless-stopped
     environment:
       # Database
@@ -211,7 +204,7 @@ services:
       - MIN_FAILURES_BEFORE_ALERT=${MIN_FAILURES_BEFORE_ALERT:-3}
       - ALERT_COOLDOWN_MINUTES=${ALERT_COOLDOWN_MINUTES:-30}
     volumes:
-      - timelapse_logs:/app/logs
+      - timelapse2_logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -224,19 +217,19 @@ services:
       retries: 3
       start_period: 15s
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Apprise Notification Service
   # ===========================================
   apprise:
     image: caronc/apprise:latest
-    container_name: timelapse_apprise
+    container_name: timelapse2_apprise
     restart: unless-stopped
     environment:
       - APPRISE_STATELESS_URLS=${APPRISE_DEFAULT_URLS:-}
     volumes:
-      - apprise_config:/config
+      - apprise2_config:/config
     expose:
       - "8000"
     healthcheck:
@@ -245,43 +238,37 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Frontend (Vue.js)
   # ===========================================
   timelapse_frontend:
     image: rjsears/unifi-timelapse-frontend:${IMAGE_TAG:-latest}
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: timelapse_frontend
+    container_name: timelapse2_frontend
     restart: unless-stopped
-    depends_on:
-      timelapse_api:
-        condition: service_healthy
     expose:
       - "80"
     healthcheck:
-      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1']
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
-      - timelapse_network
+      - timelapse2_network
 
   # ===========================================
   # Nginx Reverse Proxy
   # ===========================================
   nginx:
     image: nginx:alpine
-    container_name: timelapse_nginx
+    container_name: timelapse2_nginx
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
+      - "${HTTP_PORT:-8080}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /root/unifi_timelapse/output:/output:ro
+      - /root/unifi_timelapse2/output:/output:ro
     depends_on:
       timelapse_api:
         condition: service_healthy
@@ -293,26 +280,26 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - timelapse_network
+      - timelapse2_network
 
 # ===========================================
 # Volumes
 # ===========================================
 volumes:
-  postgres_data:
+  postgres2_data:
     driver: local
-  redis_data:
+  redis2_data:
     driver: local
-  timelapse_logs:
+  timelapse2_logs:
     driver: local
-  timelapse_config:
+  timelapse2_config:
     driver: local
-  apprise_config:
+  apprise2_config:
     driver: local
 
 # ===========================================
 # Networks
 # ===========================================
 networks:
-  timelapse_network:
+  timelapse2_network:
     driver: bridge
