@@ -20,7 +20,7 @@
         @click="openAddConfigModal"
       >
         <PlusIcon class="w-5 h-5 mr-2" />
-        Add Config
+        Add Timelapse
       </button>
     </div>
 
@@ -148,7 +148,7 @@
       </div>
     </template>
 
-    <!-- Scheduled Configs Tab -->
+    <!-- Scheduled Timelapses Tab -->
     <template v-if="activeTab === 'configs'">
       <div class="card">
         <div v-if="configsLoading" class="flex justify-center py-12">
@@ -156,11 +156,11 @@
         </div>
         <div v-else-if="multidayConfigs.length === 0" class="text-center py-12">
           <CalendarDaysIcon class="w-12 h-12 mx-auto" style="color: var(--color-text-muted);" />
-          <h3 class="mt-4 text-lg font-medium" style="color: var(--color-text-primary);">No scheduled configs</h3>
-          <p class="mt-2" style="color: var(--color-text-muted);">Create a configuration to schedule multi-day timelapses.</p>
+          <h3 class="mt-4 text-lg font-medium" style="color: var(--color-text-primary);">No scheduled timelapses</h3>
+          <p class="mt-2" style="color: var(--color-text-muted);">Create a schedule for multi-day timelapses.</p>
           <button class="btn-primary mt-4" @click="openAddConfigModal">
             <PlusIcon class="w-5 h-5 mr-2" />
-            Add Config
+            Add Timelapse
           </button>
         </div>
         <table v-else class="table">
@@ -464,8 +464,8 @@
       </div>
     </Modal>
 
-    <!-- Config Add/Edit Modal -->
-    <Modal v-model="showConfigModal" :title="editingConfig ? 'Edit Config' : 'Add Config'" size="lg">
+    <!-- Timelapse Add/Edit Modal -->
+    <Modal v-model="showConfigModal" :title="editingConfig ? 'Edit Scheduled Timelapse' : 'Add Scheduled Timelapse'" size="lg">
       <form @submit.prevent="saveConfig" class="space-y-4">
         <!-- Mode Selection -->
         <div class="mb-4">
@@ -564,7 +564,7 @@
               <span style="color: var(--color-text-secondary);">Auto-generate when collection completes</span>
             </label>
             <p class="text-xs mt-1" style="color: var(--color-text-muted);">
-              Start collection from the Scheduled Configs tab after creating this config.
+              Start collection from the Scheduled Timelapses tab after creating.
             </p>
           </div>
         </template>
@@ -640,14 +640,14 @@
             Cancel
           </button>
           <button type="submit" class="btn-primary">
-            {{ editingConfig ? 'Save Changes' : 'Create Config' }}
+            {{ editingConfig ? 'Save Changes' : 'Create Schedule' }}
           </button>
         </div>
       </form>
     </Modal>
 
     <!-- Config Delete Confirmation -->
-    <Modal v-model="showDeleteConfigModal" title="Delete Configuration" size="sm">
+    <Modal v-model="showDeleteConfigModal" title="Delete Scheduled Timelapse" size="sm">
       <p style="color: var(--color-text-secondary);">
         Are you sure you want to delete the configuration "{{ configToDelete?.name }}"?
       </p>
@@ -684,7 +684,7 @@ const multidayStore = useMultidayStore()
 const activeTab = ref('videos')
 const tabs = [
   { id: 'videos', name: 'Videos' },
-  { id: 'configs', name: 'Scheduled Configs' },
+  { id: 'configs', name: 'Scheduled Timelapses' },
   { id: 'custom', name: 'Custom Timelapse' },
 ]
 
@@ -923,7 +923,7 @@ async function saveConfig() {
       auto_generate: configForm.value.auto_generate,
     })
     if (result.success) {
-      notifications.success('Saved', 'Configuration updated')
+      notifications.success('Saved', 'Scheduled timelapse updated')
       showConfigModal.value = false
     } else {
       notifications.error('Error', result.error)
@@ -945,7 +945,7 @@ async function saveConfig() {
       auto_generate: configForm.value.auto_generate,
     })
     if (result.success) {
-      notifications.success('Created', 'Configuration created')
+      notifications.success('Created', 'Scheduled timelapse created')
       showConfigModal.value = false
     } else {
       notifications.error('Error', result.error)
@@ -961,7 +961,7 @@ function confirmDeleteConfig(config) {
 async function deleteConfig() {
   const result = await multidayStore.deleteConfig(configToDelete.value.id)
   if (result.success) {
-    notifications.success('Deleted', 'Configuration deleted')
+    notifications.success('Deleted', 'Scheduled timelapse deleted')
     showDeleteConfigModal.value = false
   } else {
     notifications.error('Error', result.error)
