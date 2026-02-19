@@ -38,9 +38,7 @@ async def login(
     Authenticate user and return access token.
     """
     # Find user
-    result = await db.execute(
-        select(User).where(User.username == request.username)
-    )
+    result = await db.execute(select(User).where(User.username == request.username))
     user = result.scalar_one_or_none()
 
     if user is None or not verify_password(request.password, user.password_hash):

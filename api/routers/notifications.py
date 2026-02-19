@@ -33,9 +33,7 @@ async def list_notification_configs(
     """
     List all notification configurations.
     """
-    result = await db.execute(
-        select(NotificationConfig).order_by(NotificationConfig.name)
-    )
+    result = await db.execute(select(NotificationConfig).order_by(NotificationConfig.name))
     configs = result.scalars().all()
 
     return [NotificationConfigResponse.model_validate(c) for c in configs]
@@ -77,9 +75,7 @@ async def get_notification_config(
     """
     Get a notification configuration by ID.
     """
-    result = await db.execute(
-        select(NotificationConfig).where(NotificationConfig.id == config_id)
-    )
+    result = await db.execute(select(NotificationConfig).where(NotificationConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -101,9 +97,7 @@ async def update_notification_config(
     """
     Update a notification configuration.
     """
-    result = await db.execute(
-        select(NotificationConfig).where(NotificationConfig.id == config_id)
-    )
+    result = await db.execute(select(NotificationConfig).where(NotificationConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -131,9 +125,7 @@ async def delete_notification_config(
     """
     Delete a notification configuration.
     """
-    result = await db.execute(
-        select(NotificationConfig).where(NotificationConfig.id == config_id)
-    )
+    result = await db.execute(select(NotificationConfig).where(NotificationConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -155,9 +147,7 @@ async def test_notification(
     """
     Send a test notification.
     """
-    result = await db.execute(
-        select(NotificationConfig).where(NotificationConfig.id == config_id)
-    )
+    result = await db.execute(select(NotificationConfig).where(NotificationConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:

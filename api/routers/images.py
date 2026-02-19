@@ -94,16 +94,12 @@ async def get_image_stats(
 
     # Count images captured today
     today_count = await db.execute(
-        select(func.count()).select_from(Image).where(
-            Image.captured_at >= today_start
-        )
+        select(func.count()).select_from(Image).where(Image.captured_at >= today_start)
     )
     today = today_count.scalar() or 0
 
     # Count total images
-    total_count = await db.execute(
-        select(func.count()).select_from(Image)
-    )
+    total_count = await db.execute(select(func.count()).select_from(Image))
     total = total_count.scalar() or 0
 
     return {
@@ -121,9 +117,7 @@ async def get_image(
     """
     Get an image by ID.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:
@@ -145,9 +139,7 @@ async def protect_image(
     """
     Protect or unprotect an image from cleanup.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:
@@ -174,9 +166,7 @@ async def delete_image(
     """
     Delete an image.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:
@@ -206,9 +196,7 @@ async def get_available_dates(
     Used for historical timelapse date selection.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -220,9 +208,7 @@ async def get_available_dates(
         select(
             func.date(Image.captured_at).label("capture_date"),
             func.count(Image.id).label("image_count"),
-            func.sum(
-                func.cast(Image.is_protected, Integer)
-            ).label("protected_count"),
+            func.sum(func.cast(Image.is_protected, Integer)).label("protected_count"),
         )
         .where(Image.camera_id == camera_id)
         .group_by(func.date(Image.captured_at))
@@ -242,11 +228,13 @@ async def get_available_dates(
         image_count = row.image_count
         protected_count = row.protected_count or 0
 
-        dates.append(DateImageCount(
-            date=capture_date,
-            image_count=image_count,
-            protected_count=protected_count,
-        ))
+        dates.append(
+            DateImageCount(
+                date=capture_date,
+                image_count=image_count,
+                protected_count=protected_count,
+            )
+        )
 
         total_images += image_count
 
@@ -276,9 +264,7 @@ async def list_camera_images(
     List images for a specific camera.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -330,9 +316,7 @@ async def get_image_thumbnail(
     """
     Get image thumbnail. No auth required for img tags.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:
@@ -366,9 +350,7 @@ async def get_image_full(
     """
     Get full image. No auth required for img tags.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:
@@ -400,9 +382,7 @@ async def download_image(
     """
     Download image as attachment. No auth required.
     """
-    result = await db.execute(
-        select(Image).where(Image.id == image_id)
-    )
+    result = await db.execute(select(Image).where(Image.id == image_id))
     image = result.scalar_one_or_none()
 
     if image is None:

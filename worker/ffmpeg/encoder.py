@@ -57,9 +57,7 @@ class FFMPEGEncoder:
             raise FileNotFoundError("No valid image files found")
 
         if len(valid_images) != len(image_paths):
-            logger.warning(
-                f"Only {len(valid_images)}/{len(image_paths)} images found"
-            )
+            logger.warning(f"Only {len(valid_images)}/{len(image_paths)} images found")
 
         # Ensure output directory exists
         output_dir = Path(output_path).parent
@@ -75,7 +73,7 @@ class FFMPEGEncoder:
                 # FFMPEG concat format requires escaping single quotes
                 escaped_path = image_path.replace("'", "'\\''")
                 f.write(f"file '{escaped_path}'\n")
-                f.write(f"duration {1/frame_rate}\n")
+                f.write(f"duration {1 / frame_rate}\n")
             # Repeat last frame to ensure it's included
             if valid_images:
                 escaped_path = valid_images[-1].replace("'", "'\\''")
@@ -110,9 +108,7 @@ class FFMPEGEncoder:
             except TimeoutError:
                 process.kill()
                 await process.wait()
-                raise TimeoutError(
-                    f"FFMPEG encoding timed out after {self.timeout}s"
-                )
+                raise TimeoutError(f"FFMPEG encoding timed out after {self.timeout}s")
 
             if process.returncode != 0:
                 error_msg = stderr.decode() if stderr else "Unknown error"
@@ -164,15 +160,24 @@ class FFMPEGEncoder:
         return [
             "ffmpeg",
             "-y",  # Overwrite output
-            "-f", "concat",  # Concat demuxer
-            "-safe", "0",  # Allow absolute paths
-            "-i", input_file,  # Input file list
-            "-vf", f"fps={frame_rate}",  # Output frame rate
-            "-c:v", "libx264",  # H.264 codec
-            "-preset", preset,  # Encoding preset
-            "-crf", str(crf),  # Quality
-            "-pix_fmt", pixel_format,  # Pixel format
-            "-movflags", "+faststart",  # Web optimization
+            "-f",
+            "concat",  # Concat demuxer
+            "-safe",
+            "0",  # Allow absolute paths
+            "-i",
+            input_file,  # Input file list
+            "-vf",
+            f"fps={frame_rate}",  # Output frame rate
+            "-c:v",
+            "libx264",  # H.264 codec
+            "-preset",
+            preset,  # Encoding preset
+            "-crf",
+            str(crf),  # Quality
+            "-pix_fmt",
+            pixel_format,  # Pixel format
+            "-movflags",
+            "+faststart",  # Web optimization
             output_path,
         ]
 
@@ -191,8 +196,10 @@ class FFMPEGEncoder:
 
         cmd = [
             "ffprobe",
-            "-v", "quiet",
-            "-print_format", "json",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
             "-show_format",
             "-show_streams",
             video_path,
@@ -214,6 +221,7 @@ class FFMPEGEncoder:
                 return None
 
             import json
+
             return json.loads(stdout.decode())
 
         except Exception as e:
@@ -240,10 +248,14 @@ class FFMPEGEncoder:
         cmd = [
             "ffmpeg",
             "-y",
-            "-i", video_path,
-            "-ss", timestamp,
-            "-vframes", "1",
-            "-q:v", "2",
+            "-i",
+            video_path,
+            "-ss",
+            timestamp,
+            "-vframes",
+            "1",
+            "-q:v",
+            "2",
             output_path,
         ]
 

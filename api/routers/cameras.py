@@ -30,7 +30,9 @@ from api.schemas.camera import (
 router = APIRouter(prefix="/cameras", tags=["Cameras"])
 
 
-def camera_to_response(camera: Camera, image_count: int = 0, timelapse_count: int = 0) -> CameraResponse:
+def camera_to_response(
+    camera: Camera, image_count: int = 0, timelapse_count: int = 0
+) -> CameraResponse:
     """Convert camera model to response schema."""
     return CameraResponse(
         id=camera.id,
@@ -86,9 +88,7 @@ async def list_cameras(
         )
         timelapse_count = tl_result.scalar() or 0
 
-        camera_responses.append(
-            camera_to_response(camera, image_count, timelapse_count)
-        )
+        camera_responses.append(camera_to_response(camera, image_count, timelapse_count))
 
     return CameraListResponse(
         cameras=camera_responses,
@@ -106,9 +106,7 @@ async def create_camera(
     Create a new camera.
     """
     # Check for duplicate name
-    result = await db.execute(
-        select(Camera).where(Camera.name == camera_data.name)
-    )
+    result = await db.execute(select(Camera).where(Camera.name == camera_data.name))
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -154,9 +152,7 @@ async def get_camera(
     """
     Get a camera by ID.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -166,9 +162,7 @@ async def get_camera(
         )
 
     # Get counts
-    img_result = await db.execute(
-        select(func.count(Image.id)).where(Image.camera_id == camera.id)
-    )
+    img_result = await db.execute(select(func.count(Image.id)).where(Image.camera_id == camera.id))
     image_count = img_result.scalar() or 0
 
     tl_result = await db.execute(
@@ -189,9 +183,7 @@ async def update_camera(
     """
     Update a camera.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -202,9 +194,7 @@ async def update_camera(
 
     # Check for duplicate name if changing
     if camera_data.name and camera_data.name != camera.name:
-        name_check = await db.execute(
-            select(Camera).where(Camera.name == camera_data.name)
-        )
+        name_check = await db.execute(select(Camera).where(Camera.name == camera_data.name))
         if name_check.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -241,9 +231,7 @@ async def delete_camera(
     """
     Delete a camera and all associated data.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -265,9 +253,7 @@ async def test_camera(
     """
     Test camera connectivity by fetching a snapshot.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -281,6 +267,7 @@ async def test_camera(
     try:
         async with httpx.AsyncClient(timeout=settings.capture_timeout) as client:
             import time
+
             start_time = time.time()
             response = await client.get(camera.url)
             elapsed_ms = int((time.time() - start_time) * 1000)
@@ -296,6 +283,7 @@ async def test_camera(
             try:
                 from PIL import Image as PILImage
                 from io import BytesIO
+
                 img = PILImage.open(BytesIO(content))
                 dimensions = f"{img.width}x{img.height}"
             except Exception:
@@ -334,9 +322,7 @@ async def get_camera_preview(
     Get a live preview image from the camera.
     No auth required - proxied from local network cameras.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -388,9 +374,7 @@ async def capture_now(
     """
     from api.services.capture import CaptureService
 
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:

@@ -28,15 +28,9 @@ class SchedulerService:
         Returns:
             List of scheduled task information
         """
-        daily_hour, daily_minute = self._parse_time(
-            self.settings.daily_timelapse_time
-        )
-        multiday_hour, multiday_minute = self._parse_time(
-            self.settings.multiday_generation_time
-        )
-        cleanup_hour, cleanup_minute = self._parse_time(
-            self.settings.cleanup_time
-        )
+        daily_hour, daily_minute = self._parse_time(self.settings.daily_timelapse_time)
+        multiday_hour, multiday_minute = self._parse_time(self.settings.multiday_generation_time)
+        cleanup_hour, cleanup_minute = self._parse_time(self.settings.cleanup_time)
 
         return [
             {

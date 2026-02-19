@@ -71,9 +71,7 @@ async def get_camera_health(
     """
     Get health status for a specific camera.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -111,9 +109,7 @@ async def get_camera_health_history(
     """
     Get health check history for a camera.
     """
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Camera not found")
 
@@ -169,9 +165,7 @@ async def get_health_summary(
     total_cameras = result.scalar() or 0
 
     # Get cameras with issues
-    result = await db.execute(
-        select(Camera).where(Camera.consecutive_errors >= 3)
-    )
+    result = await db.execute(select(Camera).where(Camera.consecutive_errors >= 3))
     cameras_with_issues = len(result.scalars().all())
 
     return {

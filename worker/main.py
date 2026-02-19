@@ -93,9 +93,7 @@ class WorkerManager:
             name="Camera Capture Cycle",
             replace_existing=True,
         )
-        logger.info(
-            f"Scheduled capture cycle every {self.settings.default_capture_interval}s"
-        )
+        logger.info(f"Scheduled capture cycle every {self.settings.default_capture_interval}s")
 
         # Add daily timelapse job
         daily_hour, daily_minute = self._parse_time(self.settings.daily_timelapse_time)
@@ -106,14 +104,10 @@ class WorkerManager:
             name="Daily Timelapse Generation",
             replace_existing=True,
         )
-        logger.info(
-            f"Scheduled daily timelapse at {self.settings.daily_timelapse_time}"
-        )
+        logger.info(f"Scheduled daily timelapse at {self.settings.daily_timelapse_time}")
 
         # Add multi-day timelapse job
-        multiday_hour, multiday_minute = self._parse_time(
-            self.settings.multiday_generation_time
-        )
+        multiday_hour, multiday_minute = self._parse_time(self.settings.multiday_generation_time)
         self.scheduler.add_job(
             run_multiday_timelapse_generation,
             trigger=CronTrigger(

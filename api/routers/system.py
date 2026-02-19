@@ -177,9 +177,7 @@ async def storage_info(
     images_size = 0
     images_count = 0
     try:
-        result = await db.execute(
-            select(func.sum(Image.file_size), func.count(Image.id))
-        )
+        result = await db.execute(select(func.sum(Image.file_size), func.count(Image.id)))
         row = result.one()
         images_size = row[0] or 0
         images_count = row[1] or 0
@@ -191,8 +189,9 @@ async def storage_info(
     videos_count = 0
     try:
         result = await db.execute(
-            select(func.sum(Timelapse.file_size), func.count(Timelapse.id))
-            .where(Timelapse.file_size.isnot(None))
+            select(func.sum(Timelapse.file_size), func.count(Timelapse.id)).where(
+                Timelapse.file_size.isnot(None)
+            )
         )
         row = result.one()
         videos_size = row[0] or 0

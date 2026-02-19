@@ -211,9 +211,6 @@ class HealthAlerter:
             self._last_alerts.pop(key, None)
         else:
             # Clear all alerts for this camera
-            keys_to_remove = [
-                k for k in self._last_alerts.keys()
-                if k.startswith(f"{camera_id}:")
-            ]
+            keys_to_remove = [k for k in self._last_alerts.keys() if k.startswith(f"{camera_id}:")]
             for key in keys_to_remove:
                 del self._last_alerts[key]

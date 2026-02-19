@@ -155,7 +155,10 @@ class Timelapse(Base):
     # Constraints
     __table_args__ = (
         UniqueConstraint(
-            "camera_id", "type", "date_start", "date_end",
+            "camera_id",
+            "type",
+            "date_start",
+            "date_end",
             name="uq_timelapse_camera_type_dates",
         ),
         CheckConstraint(
@@ -200,4 +203,6 @@ class Timelapse(Base):
         return ""
 
     def __repr__(self) -> str:
-        return f"<Timelapse(camera_id={self.camera_id}, type='{self.type}', status='{self.status}')>"
+        return (
+            f"<Timelapse(camera_id={self.camera_id}, type='{self.type}', status='{self.status}')>"
+        )

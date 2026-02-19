@@ -40,6 +40,7 @@ class ConnectivityChecker:
         """
         try:
             import time
+
             async with httpx.AsyncClient() as client:
                 start = time.time()
                 # Use GET instead of HEAD - some cameras don't support HEAD
@@ -56,9 +57,7 @@ class ConnectivityChecker:
                 if is_reachable:
                     logger.debug(f"Camera {camera.name} is reachable ({elapsed_ms}ms)")
                 else:
-                    logger.warning(
-                        f"Camera {camera.name} returned status {response.status_code}"
-                    )
+                    logger.warning(f"Camera {camera.name} returned status {response.status_code}")
 
                 return is_reachable, elapsed_ms if is_reachable else None
 
@@ -98,9 +97,7 @@ class ConnectivityChecker:
                 # Verify it looks like an image
                 content_type = response.headers.get("content-type", "")
                 if not content_type.startswith("image/"):
-                    logger.warning(
-                        f"Camera {camera.name} returned non-image: {content_type}"
-                    )
+                    logger.warning(f"Camera {camera.name} returned non-image: {content_type}")
                     return True, None  # Reachable but not returning image
 
                 return True, response.content
