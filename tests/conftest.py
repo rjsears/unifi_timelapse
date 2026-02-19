@@ -6,7 +6,6 @@ Shared fixtures for all tests.
 
 import asyncio
 import os
-from datetime import datetime
 from typing import AsyncGenerator, Generator
 from uuid import uuid4
 
@@ -15,16 +14,18 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Set test environment variables before importing app modules
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
-os.environ["REDIS_URL"] = "redis://localhost:6379/0"
-os.environ["SECRET_KEY"] = "test-secret-key-for-testing"
-os.environ["FIRST_SUPERUSER_EMAIL"] = "admin@test.com"
-os.environ["FIRST_SUPERUSER_PASSWORD"] = "testpassword123"
-os.environ["OUTPUT_BASE_PATH"] = "/tmp/test_output"
-os.environ["TZ"] = "America/Chicago"
+# Only set defaults if not already set (CI provides these)
+os.environ.setdefault(
+    "DATABASE_URL", "postgresql+asyncpg://test_user:test_password@localhost:5432/timelapse_test"
+)
+os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing")
+os.environ.setdefault("FIRST_SUPERUSER_EMAIL", "admin@test.com")
+os.environ.setdefault("FIRST_SUPERUSER_PASSWORD", "testpassword123")
+os.environ.setdefault("OUTPUT_BASE_PATH", "/tmp/test_output")
+os.environ.setdefault("TZ", "America/Chicago")
 
 from api.database import Base
 from api.main import app
@@ -43,10 +44,10 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 @pytest_asyncio.fixture(scope="function")
 async def db_engine():
     """Create async database engine for testing."""
+    database_url = os.environ.get("DATABASE_URL")
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
+        database_url,
+        echo=False,
     )
 
     async with engine.begin() as conn:
