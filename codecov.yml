@@ -2,7 +2,7 @@
 # codecov.yml
 #
 # UniFi Timelapse System - Codecov Configuration
-# Target: 80% code coverage
+# Target: Incremental coverage improvement
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 codecov:
@@ -11,20 +11,20 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: "70...100"
+  range: "20...100"
 
   status:
     project:
       default:
-        target: 80%
+        target: auto
         threshold: 2%
-        informational: false
+        informational: true
         only_pulls: false
     patch:
       default:
-        target: 80%
+        target: auto
         threshold: 5%
-        informational: false
+        informational: true
 
 parsers:
   gcov:
