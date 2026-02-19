@@ -24,7 +24,7 @@ async def test_create_camera(client: AsyncClient, auth_headers: dict):
     """Test creating a camera."""
     camera_data = {
         "name": "Test Camera",
-        "url": "http://192.168.1.100/snap.jpeg",
+        "ip_address": "192.168.1.100",
         "is_active": True,
         "capture_interval": 60,
     }
@@ -36,10 +36,11 @@ async def test_create_camera(client: AsyncClient, auth_headers: dict):
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Test Camera"
-    assert data["url"] == "http://192.168.1.100/snap.jpeg"
+    assert data["ip_address"] == "192.168.1.100"
     assert data["is_active"] is True
     assert data["capture_interval"] == 60
     assert "id" in data
+    assert data["url"] == "http://192.168.1.100/snap.jpeg"
 
 
 @pytest.mark.asyncio
@@ -47,22 +48,36 @@ async def test_create_camera_no_auth(client: AsyncClient):
     """Test creating a camera without auth fails."""
     camera_data = {
         "name": "Test Camera",
-        "url": "http://192.168.1.100/snap.jpeg",
+        "ip_address": "192.168.1.100",
     }
     response = await client.post("/api/cameras", json=camera_data)
     assert response.status_code == 401
 
 
 @pytest.mark.asyncio
+async def test_create_camera_missing_host(client: AsyncClient, auth_headers: dict):
+    """Test creating a camera without hostname or IP fails."""
+    camera_data = {
+        "name": "Test Camera",
+        "is_active": True,
+    }
+    response = await client.post(
+        "/api/cameras",
+        json=camera_data,
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
 async def test_get_camera(client: AsyncClient, auth_headers: dict, db_session: AsyncSession):
     """Test getting a specific camera."""
-    # Create camera directly in DB
     from uuid import uuid4
 
     camera = Camera(
         id=uuid4(),
         name="Test Camera",
-        url="http://192.168.1.100/snap.jpeg",
+        ip_address="192.168.1.100",
         is_active=True,
         capture_interval=60,
     )
@@ -100,7 +115,7 @@ async def test_update_camera(client: AsyncClient, auth_headers: dict, db_session
     camera = Camera(
         id=uuid4(),
         name="Original Name",
-        url="http://192.168.1.100/snap.jpeg",
+        ip_address="192.168.1.100",
         is_active=True,
         capture_interval=60,
     )
@@ -126,7 +141,7 @@ async def test_delete_camera(client: AsyncClient, auth_headers: dict, db_session
     camera = Camera(
         id=uuid4(),
         name="To Delete",
-        url="http://192.168.1.100/snap.jpeg",
+        ip_address="192.168.1.100",
         is_active=True,
         capture_interval=60,
     )

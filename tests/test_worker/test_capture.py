@@ -16,13 +16,14 @@ from api.services.capture import CaptureService, CaptureResult
 @pytest.fixture
 def mock_camera() -> Camera:
     """Create a mock camera."""
-    camera = Camera(
-        id=uuid4(),
-        name="Test Camera",
-        url="http://192.168.1.100/snap.jpeg",
-        is_active=True,
-        capture_interval=60,
-    )
+    camera = MagicMock(spec=Camera)
+    camera.id = uuid4()
+    camera.name = "Test Camera"
+    camera.ip_address = "192.168.1.100"
+    camera.hostname = None
+    camera.is_active = True
+    camera.capture_interval = 60
+    camera.url = "http://192.168.1.100/snap.jpeg"
     return camera
 
 
@@ -62,14 +63,14 @@ async def test_capture_result_dataclass():
 
 
 @pytest.mark.asyncio
-async def test_capture_single_blackout(db_session: AsyncSession, mock_camera: Camera):
+async def test_capture_single_blackout(db_session: AsyncSession, mock_camera: MagicMock):
     """Test capture during blackout period returns early."""
     service = CaptureService(db_session)
 
     # Mock camera to be in blackout
-    with patch.object(mock_camera, 'is_in_blackout', return_value=True):
-        mock_client = AsyncMock()
-        result = await service.capture_single(mock_camera, mock_client)
+    mock_camera.is_in_blackout = MagicMock(return_value=True)
+    mock_client = AsyncMock()
+    result = await service.capture_single(mock_camera, mock_client)
 
     assert result.success is False
     assert "blackout" in result.error.lower()
@@ -90,7 +91,7 @@ async def test_get_cameras_due_for_capture_never_captured(db_session: AsyncSessi
     camera = Camera(
         id=uuid4(),
         name="New Camera",
-        url="http://192.168.1.100/snap.jpeg",
+        ip_address="192.168.1.100",
         is_active=True,
         capture_interval=60,
         last_capture_at=None,
