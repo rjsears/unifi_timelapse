@@ -23,7 +23,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from api.config import get_settings
 from api.database import close_db, init_db
 from worker.tasks.capture import run_capture_cycle
-from worker.tasks.timelapse import run_daily_timelapse_generation
+from worker.tasks.timelapse import run_daily_timelapse_generation, process_pending_timelapses
 from worker.tasks.multiday import run_multiday_timelapse_generation
 from worker.tasks.cleanup import run_cleanup
 
@@ -140,6 +140,16 @@ class WorkerManager:
             replace_existing=True,
         )
         logger.info(f"Scheduled cleanup at {self.settings.cleanup_time}")
+
+        # Add pending timelapse processor - runs every 60 seconds
+        self.scheduler.add_job(
+            process_pending_timelapses,
+            trigger=IntervalTrigger(seconds=60),
+            id="pending_timelapses",
+            name="Process Pending Timelapses",
+            replace_existing=True,
+        )
+        logger.info("Scheduled pending timelapse processor every 60s")
 
         # Add heartbeat job - runs every 30 seconds
         self.scheduler.add_job(
