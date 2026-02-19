@@ -29,7 +29,7 @@ os.environ["TZ"] = "America/Chicago"
 from api.database import Base
 from api.main import app
 from api.models.user import User
-from api.services.auth import get_password_hash
+from api.auth import hash_password
 
 
 @pytest.fixture(scope="session")
@@ -96,11 +96,10 @@ async def test_user(db_session: AsyncSession) -> User:
     """Create a test user."""
     user = User(
         id=uuid4(),
-        email="testuser@test.com",
-        hashed_password=get_password_hash("testpassword123"),
+        username="testuser@test.com",
+        password_hash=hash_password("testpassword123"),
         is_active=True,
-        is_superuser=False,
-        created_at=datetime.utcnow(),
+        is_admin=False,
     )
     db_session.add(user)
     await db_session.commit()
@@ -113,11 +112,10 @@ async def admin_user(db_session: AsyncSession) -> User:
     """Create an admin user."""
     user = User(
         id=uuid4(),
-        email="admin@test.com",
-        hashed_password=get_password_hash("adminpassword123"),
+        username="admin@test.com",
+        password_hash=hash_password("adminpassword123"),
         is_active=True,
-        is_superuser=True,
-        created_at=datetime.utcnow(),
+        is_admin=True,
     )
     db_session.add(user)
     await db_session.commit()
