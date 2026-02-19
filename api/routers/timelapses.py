@@ -79,25 +79,21 @@ async def get_timelapse_stats(
     """
     # Count completed timelapses
     completed_count = await db.execute(
-        select(func.count()).select_from(Timelapse).where(
-            Timelapse.status == "completed"
-        )
+        select(func.count()).select_from(Timelapse).where(Timelapse.status == "completed")
     )
     completed = completed_count.scalar() or 0
 
     # Count pending timelapses
     pending_count = await db.execute(
-        select(func.count()).select_from(Timelapse).where(
-            Timelapse.status.in_(["pending", "processing"])
-        )
+        select(func.count())
+        .select_from(Timelapse)
+        .where(Timelapse.status.in_(["pending", "processing"]))
     )
     pending = pending_count.scalar() or 0
 
     # Count failed timelapses
     failed_count = await db.execute(
-        select(func.count()).select_from(Timelapse).where(
-            Timelapse.status == "failed"
-        )
+        select(func.count()).select_from(Timelapse).where(Timelapse.status == "failed")
     )
     failed = failed_count.scalar() or 0
 
@@ -117,9 +113,7 @@ async def get_timelapse(
     """
     Get a timelapse by ID.
     """
-    result = await db.execute(
-        select(Timelapse).where(Timelapse.id == timelapse_id)
-    )
+    result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
     timelapse = result.scalar_one_or_none()
 
     if timelapse is None:
@@ -140,9 +134,7 @@ async def delete_timelapse(
     """
     Delete a timelapse and its video file.
     """
-    result = await db.execute(
-        select(Timelapse).where(Timelapse.id == timelapse_id)
-    )
+    result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
     timelapse = result.scalar_one_or_none()
 
     if timelapse is None:
@@ -155,6 +147,7 @@ async def delete_timelapse(
     if timelapse.file_path:
         import os
         from api.config import get_settings
+
         settings = get_settings()
         file_path = f"{settings.output_base_path}/{timelapse.file_path}"
         if os.path.exists(file_path):
@@ -175,9 +168,7 @@ async def create_timelapse(
     Trigger timelapse generation for a camera.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     camera = result.scalar_one_or_none()
 
     if camera is None:
@@ -206,6 +197,7 @@ async def create_timelapse(
         )
 
     from api.config import get_settings
+
     settings = get_settings()
 
     # Create timelapse record
@@ -241,9 +233,7 @@ async def list_camera_timelapses(
     List timelapses for a specific camera.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == camera_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

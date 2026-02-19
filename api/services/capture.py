@@ -182,9 +182,7 @@ class CaptureService:
             List of CaptureResults
         """
         if cameras is None:
-            result = await self.db.execute(
-                select(Camera).where(Camera.is_active == True)
-            )
+            result = await self.db.execute(select(Camera).where(Camera.is_active == True))
             cameras = list(result.scalars().all())
 
         if not cameras:
@@ -202,10 +200,7 @@ class CaptureService:
 
         # Capture all images concurrently
         async with httpx.AsyncClient() as client:
-            tasks = [
-                capture_with_semaphore(camera, client)
-                for camera in cameras
-            ]
+            tasks = [capture_with_semaphore(camera, client) for camera in cameras]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Handle any exceptions
@@ -235,9 +230,7 @@ class CaptureService:
         """
         now = self._get_local_time()
 
-        result = await self.db.execute(
-            select(Camera).where(Camera.is_active == True)
-        )
+        result = await self.db.execute(select(Camera).where(Camera.is_active == True))
         cameras = result.scalars().all()
 
         due_cameras = []

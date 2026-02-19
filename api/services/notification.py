@@ -216,7 +216,7 @@ class NotificationService:
         )
         configs = result.scalars().all()
 
-        free_gb = free_bytes / (1024 ** 3)
+        free_gb = free_bytes / (1024**3)
 
         for config in configs:
             await self.send_notification(

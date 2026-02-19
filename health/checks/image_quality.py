@@ -88,7 +88,7 @@ class ImageQualityChecker:
 
             # Calculate standard deviation
             variance = sum((p - mean) ** 2 for p in pixels) / len(pixels)
-            std_dev = variance ** 0.5
+            std_dev = variance**0.5
 
             # Normalize to 0-1 range
             normalized_std = std_dev / 255

@@ -44,9 +44,7 @@ class HealthMonitor:
         """Run all health checks for all cameras."""
         async with get_db_context() as db:
             # Get all active cameras
-            result = await db.execute(
-                select(Camera).where(Camera.is_active == True)
-            )
+            result = await db.execute(select(Camera).where(Camera.is_active == True))
             cameras = result.scalars().all()
 
             if not cameras:
@@ -81,9 +79,7 @@ class HealthMonitor:
     async def run_image_quality_checks(self) -> None:
         """Run image quality checks for all cameras."""
         async with get_db_context() as db:
-            result = await db.execute(
-                select(Camera).where(Camera.is_active == True)
-            )
+            result = await db.execute(select(Camera).where(Camera.is_active == True))
             cameras = result.scalars().all()
 
             for camera in cameras:

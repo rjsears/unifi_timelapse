@@ -89,9 +89,7 @@ class CameraHealth(Base):
     )
 
     # Indexes
-    __table_args__ = (
-        Index("idx_camera_health_camera_checked", "camera_id", "checked_at"),
-    )
+    __table_args__ = (Index("idx_camera_health_camera_checked", "camera_id", "checked_at"),)
 
     @property
     def is_healthy(self) -> bool:

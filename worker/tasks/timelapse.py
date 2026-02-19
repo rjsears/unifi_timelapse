@@ -88,9 +88,7 @@ async def run_daily_timelapse_generation() -> None:
 
                 else:
                     failed += 1
-                    logger.warning(
-                        f"Timelapse for {camera.name} failed: {timelapse.error_message}"
-                    )
+                    logger.warning(f"Timelapse for {camera.name} failed: {timelapse.error_message}")
 
             except Exception as e:
                 failed += 1
@@ -117,9 +115,7 @@ async def generate_timelapse_for_camera(camera_id: str, target_date: date) -> No
 
     async with get_db_context() as db:
         # Get camera
-        result = await db.execute(
-            select(Camera).where(Camera.id == camera_id)
-        )
+        result = await db.execute(select(Camera).where(Camera.id == camera_id))
         camera = result.scalar_one_or_none()
 
         if not camera:
@@ -144,9 +140,7 @@ async def generate_timelapse_for_camera(camera_id: str, target_date: date) -> No
                 )
                 logger.info(f"Timelapse generated successfully for {camera.name}")
             else:
-                logger.warning(
-                    f"Timelapse generation failed: {timelapse.error_message}"
-                )
+                logger.warning(f"Timelapse generation failed: {timelapse.error_message}")
 
         except Exception as e:
             logger.exception(f"Error generating timelapse: {e}")
@@ -215,8 +209,7 @@ async def process_pending_timelapses() -> None:
                     logger.info(f"Pending timelapse completed for {camera.name}")
                 else:
                     logger.warning(
-                        f"Pending timelapse failed for {camera.name}: "
-                        f"{result.error_message}"
+                        f"Pending timelapse failed for {camera.name}: {result.error_message}"
                     )
 
             except Exception as e:

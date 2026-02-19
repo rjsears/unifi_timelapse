@@ -206,24 +206,28 @@ class UptimeTracker:
                     current_downtime_start = record.checked_at
             else:
                 if current_downtime_start is not None:
-                    downtime_periods.append({
-                        "start": current_downtime_start,
-                        "end": record.checked_at,
-                        "duration_seconds": (
-                            record.checked_at - current_downtime_start
-                        ).total_seconds(),
-                    })
+                    downtime_periods.append(
+                        {
+                            "start": current_downtime_start,
+                            "end": record.checked_at,
+                            "duration_seconds": (
+                                record.checked_at - current_downtime_start
+                            ).total_seconds(),
+                        }
+                    )
                     current_downtime_start = None
 
         # Handle ongoing downtime
         if current_downtime_start is not None:
-            downtime_periods.append({
-                "start": current_downtime_start,
-                "end": None,
-                "duration_seconds": (
-                    datetime.now(timezone.utc) - current_downtime_start
-                ).total_seconds(),
-            })
+            downtime_periods.append(
+                {
+                    "start": current_downtime_start,
+                    "end": None,
+                    "duration_seconds": (
+                        datetime.now(timezone.utc) - current_downtime_start
+                    ).total_seconds(),
+                }
+            )
 
         return downtime_periods
 
@@ -246,9 +250,7 @@ class UptimeTracker:
 
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
-        result = await db.execute(
-            delete(CameraHealth).where(CameraHealth.checked_at < cutoff)
-        )
+        result = await db.execute(delete(CameraHealth).where(CameraHealth.checked_at < cutoff))
         await db.commit()
 
         deleted = result.rowcount

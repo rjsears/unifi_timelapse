@@ -67,9 +67,7 @@ async def create_multiday_config(
     Create a new multi-day configuration.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == config_data.camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == config_data.camera_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -107,9 +105,7 @@ async def get_multiday_config(
     """
     Get a multi-day configuration by ID.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -131,9 +127,7 @@ async def update_multiday_config(
     """
     Update a multi-day configuration.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -161,9 +155,7 @@ async def delete_multiday_config(
     """
     Delete a multi-day configuration.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -185,9 +177,7 @@ async def trigger_multiday_generation(
     """
     Trigger multi-day timelapse generation.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -215,9 +205,7 @@ async def generate_historical_timelapse(
     This is a "Custom Timelapse" - it runs immediately without scheduling.
     """
     # Verify camera exists
-    result = await db.execute(
-        select(Camera).where(Camera.id == request.camera_id)
-    )
+    result = await db.execute(select(Camera).where(Camera.id == request.camera_id))
     camera = result.scalar_one_or_none()
     if camera is None:
         raise HTTPException(
@@ -292,9 +280,7 @@ async def start_prospective_collection(
     Start prospective image collection for a config.
     Images captured during the collection period will be protected.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -323,9 +309,7 @@ async def start_prospective_collection(
 
     # Get current protected images count (should be 0 at start)
     protected_count = await db.execute(
-        select(func.count())
-        .select_from(Image)
-        .where(Image.protected_by_config_id == config_id)
+        select(func.count()).select_from(Image).where(Image.protected_by_config_id == config_id)
     )
     protected_images = protected_count.scalar() or 0
 
@@ -352,9 +336,7 @@ async def get_collection_progress(
     """
     Get progress of a prospective collection.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -365,9 +347,7 @@ async def get_collection_progress(
 
     # Get protected images count
     protected_count = await db.execute(
-        select(func.count())
-        .select_from(Image)
-        .where(Image.protected_by_config_id == config_id)
+        select(func.count()).select_from(Image).where(Image.protected_by_config_id == config_id)
     )
     protected_images = protected_count.scalar() or 0
 
@@ -396,9 +376,7 @@ async def cancel_prospective_collection(
     Cancel a prospective collection.
     Optionally unprotect the collected images.
     """
-    result = await db.execute(
-        select(MultidayConfig).where(MultidayConfig.id == config_id)
-    )
+    result = await db.execute(select(MultidayConfig).where(MultidayConfig.id == config_id))
     config = result.scalar_one_or_none()
 
     if config is None:
@@ -415,9 +393,7 @@ async def cancel_prospective_collection(
 
     # Get count of protected images before unprotecting
     protected_count = await db.execute(
-        select(func.count())
-        .select_from(Image)
-        .where(Image.protected_by_config_id == config_id)
+        select(func.count()).select_from(Image).where(Image.protected_by_config_id == config_id)
     )
     protected_images = protected_count.scalar() or 0
 

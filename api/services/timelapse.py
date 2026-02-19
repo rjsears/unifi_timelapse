@@ -193,7 +193,7 @@ class TimelapseService:
                 image_path = f"{self.settings.output_base_path}/{image.file_path}"
                 # FFMPEG concat format
                 f.write(f"file '{image_path}'\n")
-                f.write(f"duration {1/frame_rate}\n")
+                f.write(f"duration {1 / frame_rate}\n")
             input_file = f.name
 
         try:
@@ -201,15 +201,24 @@ class TimelapseService:
             cmd = [
                 "ffmpeg",
                 "-y",  # Overwrite output
-                "-f", "concat",
-                "-safe", "0",
-                "-i", input_file,
-                "-vf", f"fps={frame_rate}",
-                "-c:v", "libx264",
-                "-preset", "slow",
-                "-crf", str(crf),
-                "-pix_fmt", pixel_format,
-                "-movflags", "+faststart",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                input_file,
+                "-vf",
+                f"fps={frame_rate}",
+                "-c:v",
+                "libx264",
+                "-preset",
+                "slow",
+                "-crf",
+                str(crf),
+                "-pix_fmt",
+                pixel_format,
+                "-movflags",
+                "+faststart",
                 str(output_path),
             ]
 
@@ -242,7 +251,5 @@ class TimelapseService:
 
     async def get_pending_timelapses(self) -> List[Timelapse]:
         """Get all pending timelapse jobs."""
-        result = await self.db.execute(
-            select(Timelapse).where(Timelapse.status == "pending")
-        )
+        result = await self.db.execute(select(Timelapse).where(Timelapse.status == "pending"))
         return list(result.scalars().all())

@@ -119,9 +119,7 @@ class StorageService:
         date_str = date.strftime("%Y%m%d")
         return f"{date_str}.mp4"
 
-    def get_summary_video_filename(
-        self, start_date: datetime, end_date: datetime
-    ) -> str:
+    def get_summary_video_filename(self, start_date: datetime, end_date: datetime) -> str:
         """
         Generate summary timelapse video filename.
 
@@ -235,9 +233,7 @@ class StorageService:
                 "percent_used": 0,
             }
 
-    def list_images_for_date(
-        self, camera_name: str, date: datetime
-    ) -> list[Path]:
+    def list_images_for_date(self, camera_name: str, date: datetime) -> list[Path]:
         """
         List all images for a camera on a specific date.
 

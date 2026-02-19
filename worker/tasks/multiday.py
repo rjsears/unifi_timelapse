@@ -96,9 +96,7 @@ async def run_multiday_timelapse_generation() -> None:
 
         for config in configs:
             try:
-                logger.info(
-                    f"Generating multi-day timelapse for camera {config.camera_id}"
-                )
+                logger.info(f"Generating multi-day timelapse for camera {config.camera_id}")
 
                 # Get camera
                 camera_result = await db.execute(
@@ -143,9 +141,7 @@ async def run_multiday_timelapse_generation() -> None:
                     )
                     continue
 
-                logger.info(
-                    f"Selected {len(selected_images)} images for {config.mode} timelapse"
-                )
+                logger.info(f"Selected {len(selected_images)} images for {config.mode} timelapse")
 
                 # Mark images as protected
                 for image in selected_images:
@@ -179,8 +175,7 @@ async def run_multiday_timelapse_generation() -> None:
 
                     # Get image paths
                     image_paths = [
-                        f"{settings.output_base_path}/{img.file_path}"
-                        for img in selected_images
+                        f"{settings.output_base_path}/{img.file_path}" for img in selected_images
                     ]
 
                     # Encode video

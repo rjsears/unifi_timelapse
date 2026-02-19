@@ -46,9 +46,7 @@ async def create_admin_user() -> None:
 
     async with async_session_maker() as db:
         # Check if admin user exists
-        result = await db.execute(
-            select(User).where(User.username == settings.admin_username)
-        )
+        result = await db.execute(select(User).where(User.username == settings.admin_username))
         if result.scalar_one_or_none() is None:
             # Create admin user
             admin = User(
@@ -67,20 +65,60 @@ async def seed_default_settings() -> None:
     settings = get_settings()
 
     default_settings = [
-        ("default_capture_interval", str(settings.default_capture_interval), "integer", "capture", "Default capture interval in seconds"),
-        ("default_frame_rate", str(settings.default_frame_rate), "integer", "timelapse", "Default video frame rate"),
-        ("default_crf", str(settings.default_crf), "integer", "timelapse", "Default CRF quality (0-51, lower=better)"),
-        ("default_pixel_format", settings.default_pixel_format, "string", "timelapse", "Default pixel format"),
-        ("ffmpeg_timeout", str(settings.ffmpeg_timeout), "integer", "timelapse", "FFMPEG timeout in seconds"),
-        ("retention_days_images", str(settings.retention_days_images), "integer", "cleanup", "Days to retain images"),
-        ("retention_days_videos", str(settings.retention_days_videos), "integer", "cleanup", "Days to retain videos"),
+        (
+            "default_capture_interval",
+            str(settings.default_capture_interval),
+            "integer",
+            "capture",
+            "Default capture interval in seconds",
+        ),
+        (
+            "default_frame_rate",
+            str(settings.default_frame_rate),
+            "integer",
+            "timelapse",
+            "Default video frame rate",
+        ),
+        (
+            "default_crf",
+            str(settings.default_crf),
+            "integer",
+            "timelapse",
+            "Default CRF quality (0-51, lower=better)",
+        ),
+        (
+            "default_pixel_format",
+            settings.default_pixel_format,
+            "string",
+            "timelapse",
+            "Default pixel format",
+        ),
+        (
+            "ffmpeg_timeout",
+            str(settings.ffmpeg_timeout),
+            "integer",
+            "timelapse",
+            "FFMPEG timeout in seconds",
+        ),
+        (
+            "retention_days_images",
+            str(settings.retention_days_images),
+            "integer",
+            "cleanup",
+            "Days to retain images",
+        ),
+        (
+            "retention_days_videos",
+            str(settings.retention_days_videos),
+            "integer",
+            "cleanup",
+            "Days to retain videos",
+        ),
     ]
 
     async with async_session_maker() as db:
         for key, value, type_, category, description in default_settings:
-            result = await db.execute(
-                select(SystemSettings).where(SystemSettings.key == key)
-            )
+            result = await db.execute(select(SystemSettings).where(SystemSettings.key == key))
             if result.scalar_one_or_none() is None:
                 setting = SystemSettings(
                     key=key,

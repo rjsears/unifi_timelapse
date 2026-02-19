@@ -81,6 +81,5 @@ async def run_capture_cycle() -> None:
 
         elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
         logger.info(
-            f"Capture cycle complete: {successful} successful, {failed} failed "
-            f"in {elapsed:.2f}s"
+            f"Capture cycle complete: {successful} successful, {failed} failed in {elapsed:.2f}s"
         )

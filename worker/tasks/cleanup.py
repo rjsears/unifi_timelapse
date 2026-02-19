@@ -35,9 +35,7 @@ async def run_cleanup() -> None:
         storage_service = StorageService()
 
         # Cleanup old images
-        logger.info(
-            f"Cleaning up images older than {settings.retention_days_images} days"
-        )
+        logger.info(f"Cleaning up images older than {settings.retention_days_images} days")
         image_log = await cleanup_service.cleanup_old_images()
         logger.info(
             f"Image cleanup: {image_log.files_deleted} files deleted, "
@@ -46,9 +44,7 @@ async def run_cleanup() -> None:
         )
 
         # Cleanup old videos
-        logger.info(
-            f"Cleaning up videos older than {settings.retention_days_videos} days"
-        )
+        logger.info(f"Cleaning up videos older than {settings.retention_days_videos} days")
         video_log = await cleanup_service.cleanup_old_videos()
         logger.info(
             f"Video cleanup: {video_log.files_deleted} files deleted, "
@@ -71,10 +67,7 @@ async def run_cleanup() -> None:
 
         elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
         total_freed = image_log.bytes_freed + video_log.bytes_freed
-        logger.info(
-            f"Cleanup complete: {total_freed / 1024 / 1024:.2f} MB freed "
-            f"in {elapsed:.2f}s"
-        )
+        logger.info(f"Cleanup complete: {total_freed / 1024 / 1024:.2f} MB freed in {elapsed:.2f}s")
 
 
 async def run_cleanup_for_camera(camera_id: str) -> None:

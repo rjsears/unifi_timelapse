@@ -4,7 +4,6 @@ Settings Router
 Global settings management.
 """
 
-
 from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
@@ -115,9 +114,7 @@ async def get_setting(
     """
     Get a setting by key (admin only).
     """
-    result = await db.execute(
-        select(SystemSettings).where(SystemSettings.key == key)
-    )
+    result = await db.execute(select(SystemSettings).where(SystemSettings.key == key))
     setting = result.scalar_one_or_none()
 
     if setting is None:
@@ -147,9 +144,7 @@ async def update_setting(
     """
     Update a setting (admin only).
     """
-    result = await db.execute(
-        select(SystemSettings).where(SystemSettings.key == key)
-    )
+    result = await db.execute(select(SystemSettings).where(SystemSettings.key == key))
     setting = result.scalar_one_or_none()
 
     if setting is None:

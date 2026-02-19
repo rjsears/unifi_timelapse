@@ -37,12 +37,8 @@ class Settings(BaseSettings):
         description="Secret key for JWT signing",
     )
     admin_username: str = Field(default="admin", description="Admin username")
-    admin_password: str = Field(
-        default="changeme", description="Admin password"
-    )
-    jwt_expiration_hours: int = Field(
-        default=24, description="JWT token expiration in hours"
-    )
+    admin_password: str = Field(default="changeme", description="Admin password")
+    jwt_expiration_hours: int = Field(default=24, description="JWT token expiration in hours")
 
     # Application
     debug: bool = Field(default=False, description="Debug mode")
@@ -50,15 +46,9 @@ class Settings(BaseSettings):
     tz: str = Field(default="America/Los_Angeles", description="Timezone")
 
     # Storage paths
-    output_base_path: str = Field(
-        default="/output", description="Base path for output files"
-    )
-    images_subpath: str = Field(
-        default="unifi/images", description="Subdirectory for images"
-    )
-    videos_subpath: str = Field(
-        default="unifi/videos", description="Subdirectory for videos"
-    )
+    output_base_path: str = Field(default="/output", description="Base path for output files")
+    images_subpath: str = Field(default="unifi/images", description="Subdirectory for images")
+    videos_subpath: str = Field(default="unifi/videos", description="Subdirectory for videos")
 
     # Capture defaults
     default_capture_interval: int = Field(
@@ -67,26 +57,16 @@ class Settings(BaseSettings):
     max_concurrent_captures: int = Field(
         default=50, ge=1, le=200, description="Maximum concurrent camera captures"
     )
-    capture_timeout: int = Field(
-        default=30, ge=5, le=120, description="Capture timeout in seconds"
-    )
-    capture_retries: int = Field(
-        default=3, ge=0, le=10, description="Number of capture retries"
-    )
+    capture_timeout: int = Field(default=30, ge=5, le=120, description="Capture timeout in seconds")
+    capture_retries: int = Field(default=3, ge=0, le=10, description="Number of capture retries")
 
     # Timelapse defaults
     default_frame_rate: int = Field(
         default=30, ge=1, le=120, description="Default video frame rate"
     )
-    default_crf: int = Field(
-        default=20, ge=0, le=51, description="Default CRF (quality)"
-    )
-    default_pixel_format: str = Field(
-        default="yuv444p", description="Default pixel format"
-    )
-    ffmpeg_timeout: int = Field(
-        default=14400, ge=60, description="FFMPEG timeout in seconds"
-    )
+    default_crf: int = Field(default=20, ge=0, le=51, description="Default CRF (quality)")
+    default_pixel_format: str = Field(default="yuv444p", description="Default pixel format")
+    ffmpeg_timeout: int = Field(default=14400, ge=60, description="FFMPEG timeout in seconds")
     daily_timelapse_time: str = Field(
         default="01:00", description="Time to generate daily timelapse (HH:MM)"
     )
@@ -107,17 +87,12 @@ class Settings(BaseSettings):
 
     # Cleanup
     cleanup_after_timelapse: bool = Field(
-        default=False, description="Delete images after timelapse creation (deprecated - use retention instead)"
+        default=False,
+        description="Delete images after timelapse creation (deprecated - use retention instead)",
     )
-    retention_days_images: int = Field(
-        default=7, ge=1, description="Days to retain images"
-    )
-    retention_days_videos: int = Field(
-        default=365, ge=1, description="Days to retain videos"
-    )
-    cleanup_time: str = Field(
-        default="03:00", description="Time to run cleanup (HH:MM)"
-    )
+    retention_days_images: int = Field(default=7, ge=1, description="Days to retain images")
+    retention_days_videos: int = Field(default=365, ge=1, description="Days to retain videos")
+    cleanup_time: str = Field(default="03:00", description="Time to run cleanup (HH:MM)")
 
     # Health monitor
     health_check_interval: int = Field(
@@ -134,12 +109,8 @@ class Settings(BaseSettings):
     )
 
     # Notifications
-    apprise_enabled: bool = Field(
-        default=False, description="Enable Apprise notifications"
-    )
-    apprise_url: str = Field(
-        default="http://apprise:8000", description="Apprise API URL"
-    )
+    apprise_enabled: bool = Field(default=False, description="Enable Apprise notifications")
+    apprise_url: str = Field(default="http://apprise:8000", description="Apprise API URL")
     min_failures_before_alert: int = Field(
         default=3, ge=1, description="Consecutive failures before alerting"
     )

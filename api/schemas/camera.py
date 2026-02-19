@@ -38,6 +38,7 @@ class CameraBase(BaseModel):
         if v is None:
             return v
         import ipaddress
+
         try:
             ipaddress.ip_address(v)
         except ValueError:
@@ -71,6 +72,7 @@ class CameraUpdate(BaseModel):
         if v is None:
             return v
         import ipaddress
+
         try:
             ipaddress.ip_address(v)
         except ValueError:
