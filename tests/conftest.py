@@ -129,7 +129,7 @@ async def auth_headers(client: AsyncClient, test_user: User) -> dict:
     """Get authentication headers for test user."""
     response = await client.post(
         "/api/auth/login",
-        data={
+        json={
             "username": "testuser@test.com",
             "password": "testpassword123",
         },
@@ -143,7 +143,7 @@ async def admin_headers(client: AsyncClient, admin_user: User) -> dict:
     """Get authentication headers for admin user."""
     response = await client.post(
         "/api/auth/login",
-        data={
+        json={
             "username": "admin@test.com",
             "password": "adminpassword123",
         },
