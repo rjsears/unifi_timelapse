@@ -33,7 +33,7 @@ async def test_create_camera(client: AsyncClient, auth_headers: dict):
         json=camera_data,
         headers=auth_headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["name"] == "Test Camera"
     assert data["ip_address"] == "192.168.1.100"
