@@ -27,7 +27,7 @@ os.environ.setdefault("FIRST_SUPERUSER_PASSWORD", "testpassword123")
 os.environ.setdefault("OUTPUT_BASE_PATH", "/tmp/test_output")
 os.environ.setdefault("TZ", "America/Chicago")
 
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 
 from api.database import Base
 from api.main import app
@@ -316,8 +316,8 @@ async def sample_settings(db_session: AsyncSession) -> list:
 async def camera_health_records(db_session: AsyncSession, sample_camera: Camera) -> list:
     """Create camera health records for testing."""
     records = []
-    # Use naive datetime, database handles timezone internally
-    base_time = datetime.utcnow() - timedelta(hours=23)
+    # Use timezone-aware UTC datetime to match router's datetime.now(timezone.utc)
+    base_time = datetime.now(timezone.utc) - timedelta(hours=23)
     for i in range(24):
         record = CameraHealth(
             id=uuid4(),
