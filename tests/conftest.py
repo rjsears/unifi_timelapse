@@ -315,11 +315,9 @@ async def sample_settings(db_session: AsyncSession) -> list:
 @pytest_asyncio.fixture(scope="function")
 async def camera_health_records(db_session: AsyncSession, sample_camera: Camera) -> list:
     """Create camera health records for testing."""
-    from datetime import timezone
-
     records = []
-    # Use timezone-aware datetime for consistency with the router
-    base_time = datetime.now(timezone.utc) - timedelta(hours=24)
+    # Use naive datetime, database handles timezone internally
+    base_time = datetime.utcnow() - timedelta(hours=23)
     for i in range(24):
         record = CameraHealth(
             id=uuid4(),
