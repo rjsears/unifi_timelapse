@@ -316,8 +316,9 @@ async def sample_settings(db_session: AsyncSession) -> list:
 async def camera_health_records(db_session: AsyncSession, sample_camera: Camera) -> list:
     """Create camera health records for testing."""
     records = []
-    # Use timezone-aware UTC datetime to match router's datetime.now(timezone.utc)
-    base_time = datetime.now(timezone.utc) - timedelta(hours=23)
+    # Database column is TIMESTAMP WITHOUT TIME ZONE, so use naive UTC datetime
+    # Calculate in UTC, then strip timezone for insertion
+    base_time = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=23)
     for i in range(24):
         record = CameraHealth(
             id=uuid4(),
