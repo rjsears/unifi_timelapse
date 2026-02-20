@@ -61,7 +61,8 @@ async def test_update_setting(client: AsyncClient, admin_headers: dict, sample_s
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["value"] == "60"
+    # Value is returned as integer since setting type is "integer"
+    assert data["value"] == 60
 
 
 @pytest.mark.asyncio

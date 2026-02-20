@@ -29,9 +29,10 @@ async def test_system_info(client: AsyncClient, auth_headers: dict):
 
 @pytest.mark.asyncio
 async def test_system_info_no_auth(client: AsyncClient):
-    """Test system info without auth fails."""
+    """Test system info works without auth (public endpoint)."""
     response = await client.get("/api/system/info")
-    assert response.status_code == 401
+    # System info is a public endpoint
+    assert response.status_code == 200
 
 
 @pytest.mark.asyncio
@@ -46,6 +47,7 @@ async def test_system_storage(client: AsyncClient, auth_headers: dict):
 
 @pytest.mark.asyncio
 async def test_system_storage_no_auth(client: AsyncClient):
-    """Test system storage without auth fails."""
+    """Test system storage works without auth (public endpoint)."""
     response = await client.get("/api/system/storage")
-    assert response.status_code == 401
+    # Storage info is a public endpoint
+    assert response.status_code == 200

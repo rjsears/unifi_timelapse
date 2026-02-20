@@ -200,7 +200,9 @@ async def test_start_collection(
     await db_session.commit()
 
     response = await client.post(
-        f"/api/multiday/{config.id}/start-collection", headers=auth_headers
+        f"/api/multiday/{config.id}/start-collection",
+        json={"days_to_collect": 7},
+        headers=auth_headers,
     )
     assert response.status_code in [200, 400]
 
