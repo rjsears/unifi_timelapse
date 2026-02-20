@@ -114,7 +114,8 @@ async def get_camera_health_history(
         raise HTTPException(status_code=404, detail="Camera not found")
 
     # Get health checks from the last N hours
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    # Use naive UTC datetime to match database column type (TIMESTAMP WITHOUT TIME ZONE)
+    cutoff = datetime.utcnow() - timedelta(hours=hours)
 
     result = await db.execute(
         select(CameraHealth)
