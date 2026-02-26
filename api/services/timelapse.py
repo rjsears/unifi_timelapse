@@ -8,7 +8,7 @@ import asyncio
 import logging
 import os
 import tempfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from pathlib import Path
 from typing import List, Optional
 
@@ -86,7 +86,7 @@ class TimelapseService:
 
         # Update status to processing
         timelapse.status = "processing"
-        timelapse.started_at = datetime.now(timezone.utc)
+        timelapse.started_at = datetime.utcnow()
         await self.db.commit()
 
         try:
@@ -132,7 +132,7 @@ class TimelapseService:
             timelapse.frame_count = len(images)
             timelapse.duration_seconds = len(images) / frame_rate
             timelapse.status = "completed"
-            timelapse.completed_at = datetime.now(timezone.utc)
+            timelapse.completed_at = datetime.utcnow()
 
             # Link images to timelapse
             for image in images:

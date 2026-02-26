@@ -158,7 +158,7 @@ async def run_multiday_timelapse_generation() -> None:
                     crf=config.crf or settings.default_crf,
                     pixel_format=config.pixel_format or settings.default_pixel_format,
                     status="processing",
-                    started_at=datetime.now(timezone.utc),
+                    started_at=datetime.utcnow(),
                 )
                 db.add(timelapse)
                 await db.commit()
@@ -195,7 +195,7 @@ async def run_multiday_timelapse_generation() -> None:
                     timelapse.frame_count = len(selected_images)
                     timelapse.duration_seconds = len(selected_images) / timelapse.frame_rate
                     timelapse.status = "completed"
-                    timelapse.completed_at = datetime.now(timezone.utc)
+                    timelapse.completed_at = datetime.utcnow()
 
                     # Link images to timelapse
                     for image in selected_images:

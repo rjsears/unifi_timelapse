@@ -5,7 +5,7 @@ Track camera uptime and health statistics.
 """
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional
 
 from sqlalchemy import func, select
@@ -52,7 +52,7 @@ class UptimeTracker:
             is_image_blank=is_image_blank,
             is_image_frozen=is_image_frozen,
             error_message=error_message,
-            checked_at=datetime.now(timezone.utc),
+            checked_at=datetime.utcnow(),
         )
 
         db.add(health_record)
@@ -78,7 +78,7 @@ class UptimeTracker:
         Returns:
             Uptime percentage (0-100)
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.utcnow() - timedelta(hours=hours)
 
         # Count total checks
         total_result = await db.execute(
@@ -121,7 +121,7 @@ class UptimeTracker:
         Returns:
             Average response time in ms or None if no data
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.utcnow() - timedelta(hours=hours)
 
         result = await db.execute(
             select(func.avg(CameraHealth.response_time_ms)).where(
@@ -153,7 +153,7 @@ class UptimeTracker:
         Returns:
             List of CameraHealth records
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.utcnow() - timedelta(hours=hours)
 
         result = await db.execute(
             select(CameraHealth)
@@ -224,7 +224,7 @@ class UptimeTracker:
                     "start": current_downtime_start,
                     "end": None,
                     "duration_seconds": (
-                        datetime.now(timezone.utc) - current_downtime_start
+                        datetime.utcnow() - current_downtime_start
                     ).total_seconds(),
                 }
             )
@@ -248,7 +248,7 @@ class UptimeTracker:
         """
         from sqlalchemy import delete
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        cutoff = datetime.utcnow() - timedelta(days=days)
 
         result = await db.execute(delete(CameraHealth).where(CameraHealth.checked_at < cutoff))
         await db.commit()
