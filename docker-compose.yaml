@@ -16,6 +16,8 @@ services:
     image: postgres:16-alpine
     container_name: timelapse_postgres
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-timelapse}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
@@ -37,6 +39,8 @@ services:
     image: redis:7-alpine
     container_name: timelapse_redis
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
@@ -58,6 +62,8 @@ services:
       dockerfile: Dockerfile.api
     container_name: timelapse_api
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     environment:
       # Database
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-timelapse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-timelapse}
@@ -130,6 +136,8 @@ services:
       dockerfile: Dockerfile.worker
     container_name: timelapse_worker
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     environment:
       # Database
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-timelapse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-timelapse}
@@ -191,6 +199,8 @@ services:
       dockerfile: Dockerfile.health
     container_name: timelapse_health
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     environment:
       # Database
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-timelapse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-timelapse}
@@ -233,6 +243,8 @@ services:
     image: caronc/apprise:latest
     container_name: timelapse_apprise
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     environment:
       - APPRISE_STATELESS_URLS=${APPRISE_DEFAULT_URLS:-}
     volumes:
@@ -257,6 +269,8 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: timelapse_frontend
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     depends_on:
       timelapse_api:
         condition: service_healthy
@@ -277,6 +291,8 @@ services:
     image: nginx:alpine
     container_name: timelapse_nginx
     restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
     ports:
       - "${HTTP_PORT:-80}:80"
     volumes:
