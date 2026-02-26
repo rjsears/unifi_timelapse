@@ -5,7 +5,7 @@ Automatic cleanup of old images and videos.
 """
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional
 
 from sqlalchemy import func, select
@@ -46,7 +46,7 @@ class CleanupService:
             CleanupLog record
         """
         retention_days = retention_days or self.settings.retention_days_images
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=retention_days)
+        cutoff_date = datetime.utcnow() - timedelta(days=retention_days)
 
         # Build query for images to delete
         query = select(Image).where(
@@ -97,7 +97,7 @@ class CleanupService:
             files_deleted=files_deleted,
             bytes_freed=bytes_freed,
             protected_skipped=protected_count,
-            executed_at=datetime.now(timezone.utc),
+            executed_at=datetime.utcnow(),
         )
         self.db.add(cleanup_log)
         await self.db.commit()
@@ -126,7 +126,7 @@ class CleanupService:
             CleanupLog record
         """
         retention_days = retention_days or self.settings.retention_days_videos
-        cutoff_date = datetime.now(timezone.utc).date() - timedelta(days=retention_days)
+        cutoff_date = datetime.utcnow().date() - timedelta(days=retention_days)
 
         # Build query for timelapses to delete
         query = select(Timelapse).where(
@@ -166,7 +166,7 @@ class CleanupService:
             files_deleted=files_deleted,
             bytes_freed=bytes_freed,
             protected_skipped=0,
-            executed_at=datetime.now(timezone.utc),
+            executed_at=datetime.utcnow(),
         )
         self.db.add(cleanup_log)
         await self.db.commit()
@@ -238,7 +238,7 @@ class CleanupService:
             files_deleted=files_deleted,
             bytes_freed=bytes_freed,
             protected_skipped=protected_count,
-            executed_at=datetime.now(timezone.utc),
+            executed_at=datetime.utcnow(),
         )
         self.db.add(cleanup_log)
         await self.db.commit()

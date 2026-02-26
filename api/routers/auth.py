@@ -4,7 +4,7 @@ Authentication Router
 Login, logout, and user management endpoints.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -54,7 +54,7 @@ async def login(
         )
 
     # Update last login
-    user.last_login_at = datetime.now(timezone.utc)
+    user.last_login_at = datetime.utcnow()
     await db.commit()
 
     # Create token
