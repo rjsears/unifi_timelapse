@@ -64,3 +64,32 @@ async def test_get_current_user_no_auth(client: AsyncClient):
     """Test getting current user without auth fails."""
     response = await client.get("/api/auth/me")
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_login_updates_last_login(client: AsyncClient, db_session, test_user: User):
+    """Test that successful login updates last_login_at timestamp."""
+    from sqlalchemy import select
+    from api.models.user import User as UserModel
+
+    # Record initial state
+    initial_last_login = test_user.last_login_at
+
+    # Perform login
+    response = await client.post(
+        "/api/auth/login",
+        json={
+            "username": "testuser@test.com",
+            "password": "testpassword123",
+        },
+    )
+    assert response.status_code == 200
+
+    # Verify last_login_at was updated
+    result = await db_session.execute(
+        select(UserModel).where(UserModel.id == test_user.id)
+    )
+    updated_user = result.scalar_one()
+    assert updated_user.last_login_at is not None
+    if initial_last_login is not None:
+        assert updated_user.last_login_at >= initial_last_login
