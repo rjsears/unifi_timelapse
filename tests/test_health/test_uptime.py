@@ -179,3 +179,44 @@ class TestUptimeTracker:
         deleted = await tracker.cleanup_old_records(mock_db, days=30)
 
         assert deleted == 0
+
+    @pytest.mark.asyncio
+    async def test_get_downtime_periods_with_downtime(self, tracker, mock_db, mock_camera):
+        """Test downtime periods with actual downtime."""
+        # Create mock health records with a downtime period
+        now = datetime.utcnow()
+        records = [
+            MagicMock(checked_at=now - timedelta(hours=3), is_online=True),
+            MagicMock(checked_at=now - timedelta(hours=2), is_online=False),  # Downtime starts
+            MagicMock(checked_at=now - timedelta(hours=1), is_online=True),   # Downtime ends
+        ]
+
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = list(reversed(records))  # DESC order
+        mock_db.execute.return_value = mock_result
+
+        periods = await tracker.get_downtime_periods(mock_db, mock_camera)
+
+        assert len(periods) == 1
+        assert periods[0]["start"] == now - timedelta(hours=2)
+        assert periods[0]["end"] == now - timedelta(hours=1)
+
+    @pytest.mark.asyncio
+    async def test_get_downtime_periods_ongoing(self, tracker, mock_db, mock_camera):
+        """Test downtime periods with ongoing downtime (no recovery yet)."""
+        now = datetime.utcnow()
+        records = [
+            MagicMock(checked_at=now - timedelta(hours=2), is_online=True),
+            MagicMock(checked_at=now - timedelta(hours=1), is_online=False),  # Downtime starts, not recovered
+        ]
+
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = list(reversed(records))  # DESC order
+        mock_db.execute.return_value = mock_result
+
+        periods = await tracker.get_downtime_periods(mock_db, mock_camera)
+
+        assert len(periods) == 1
+        assert periods[0]["start"] == now - timedelta(hours=1)
+        assert periods[0]["end"] is None  # Ongoing downtime
+        assert periods[0]["duration_seconds"] > 0
