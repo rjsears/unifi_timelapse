@@ -100,16 +100,19 @@ async def test_login_updates_last_login(client: AsyncClient, db_session, test_us
 @pytest.mark.asyncio
 async def test_login_function_directly():
     """Test login function directly to ensure datetime.utcnow() is called."""
+    from uuid import uuid4
     from api.routers.auth import login
     from api.schemas.auth import LoginRequest
 
-    # Create mock user
+    # Create mock user with proper attributes for Pydantic validation
     mock_user = MagicMock()
+    mock_user.id = uuid4()
     mock_user.username = "test@test.com"
     mock_user.password_hash = "$2b$12$test"  # placeholder
     mock_user.is_active = True
     mock_user.is_admin = False
     mock_user.last_login_at = None
+    mock_user.created_at = datetime.utcnow()
 
     # Create mock db
     mock_db = AsyncMock()
