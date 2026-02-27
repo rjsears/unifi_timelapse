@@ -4,6 +4,7 @@ Timelapses Router
 Timelapse management endpoints.
 """
 
+import os
 from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
@@ -14,6 +15,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import get_current_user
+from api.config import get_settings
 from api.database import get_db
 from api.models.camera import Camera
 from api.models.timelapse import Timelapse
@@ -135,9 +137,6 @@ async def get_timelapse_video(
     """
     Stream timelapse video file.
     """
-    import os
-    from api.config import get_settings
-
     result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
     timelapse = result.scalar_one_or_none()
 
@@ -178,9 +177,6 @@ async def download_timelapse(
     """
     Download timelapse video file.
     """
-    import os
-    from api.config import get_settings
-
     result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
     timelapse = result.scalar_one_or_none()
 
@@ -233,9 +229,6 @@ async def delete_timelapse(
 
     # Delete video file
     if timelapse.file_path:
-        import os
-        from api.config import get_settings
-
         settings = get_settings()
         file_path = f"{settings.output_base_path}/{timelapse.file_path}"
         if os.path.exists(file_path):
@@ -283,8 +276,6 @@ async def create_timelapse(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Timelapse already exists for this date range",
         )
-
-    from api.config import get_settings
 
     settings = get_settings()
 
