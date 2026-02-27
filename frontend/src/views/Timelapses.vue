@@ -745,7 +745,6 @@ const customForm = ref({
   pixel_format: 'yuv444p',
 })
 const availableDatesData = ref(null)
-const loadingDates = computed(() => multidayStore.loadingDates)
 const generatingCustom = ref(false)
 
 // Computed for custom timelapse estimates
