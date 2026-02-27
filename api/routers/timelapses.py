@@ -205,7 +205,9 @@ async def download_timelapse(
         path=file_path,
         media_type="video/mp4",
         filename=os.path.basename(timelapse.file_path),
-        headers={"Content-Disposition": f"attachment; filename={os.path.basename(timelapse.file_path)}"},
+        headers={
+            "Content-Disposition": f"attachment; filename={os.path.basename(timelapse.file_path)}"
+        },
     )
 
 
