@@ -9,6 +9,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -123,6 +124,93 @@ async def get_timelapse(
         )
 
     return TimelapseResponse.model_validate(timelapse)
+
+
+@router.get("/{timelapse_id}/video")
+async def get_timelapse_video(
+    timelapse_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> FileResponse:
+    """
+    Stream timelapse video file.
+    """
+    import os
+    from api.config import get_settings
+
+    result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
+    timelapse = result.scalar_one_or_none()
+
+    if timelapse is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse not found",
+        )
+
+    if not timelapse.file_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse video file not available",
+        )
+
+    settings = get_settings()
+    file_path = f"{settings.output_base_path}/{timelapse.file_path}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse video file not found on disk",
+        )
+
+    return FileResponse(
+        path=file_path,
+        media_type="video/mp4",
+        filename=os.path.basename(timelapse.file_path),
+    )
+
+
+@router.get("/{timelapse_id}/download")
+async def download_timelapse(
+    timelapse_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> FileResponse:
+    """
+    Download timelapse video file.
+    """
+    import os
+    from api.config import get_settings
+
+    result = await db.execute(select(Timelapse).where(Timelapse.id == timelapse_id))
+    timelapse = result.scalar_one_or_none()
+
+    if timelapse is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse not found",
+        )
+
+    if not timelapse.file_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse video file not available",
+        )
+
+    settings = get_settings()
+    file_path = f"{settings.output_base_path}/{timelapse.file_path}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timelapse video file not found on disk",
+        )
+
+    return FileResponse(
+        path=file_path,
+        media_type="video/mp4",
+        filename=os.path.basename(timelapse.file_path),
+        headers={"Content-Disposition": f"attachment; filename={os.path.basename(timelapse.file_path)}"},
+    )
 
 
 @router.delete("/{timelapse_id}", status_code=status.HTTP_204_NO_CONTENT)
