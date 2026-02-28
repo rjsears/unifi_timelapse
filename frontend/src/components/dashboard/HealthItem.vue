@@ -11,7 +11,10 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  label: String,
+  label: {
+    type: String,
+    default: '',
+  },
   status: {
     type: String,
     default: 'unknown',
